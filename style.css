@@ -230,7 +230,7 @@ a:focus-visible { outline: 3px solid var(--brand-4); outline-offset: 2px; border
   }
 
   .dock {
-    padding: .5rem;
+    padding: .2rem;
   }
   
   .dock .btn {
@@ -239,7 +239,7 @@ a:focus-visible { outline: 3px solid var(--brand-4); outline-offset: 2px; border
   
   /* 4. Cartões e tabelas no mobile */
   .card {
-    padding: .75rem;
+    padding: .3rem;
   }
   
   th, td {
