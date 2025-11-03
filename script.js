@@ -243,6 +243,8 @@ function renderSong(id) {
     </div>
   `;
 
+/**/
+
   el.innerHTML = `
     <nav aria-label="Trilha" class="muted">
       <a href="#idx-musicas" id="lnk-voltar">← Voltar ao índice</a>

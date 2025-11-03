@@ -141,7 +141,7 @@ main {
 }
 
 .btn:focus-visible { outline: 3px solid var(--brand-4); outline-offset: 2px; }
-.btn.big { font-size: 1.1rem; } /* Manter 'big' para botões de A+/A- */
+.btn.big { font-size: 1rem; } /* Manter 'big' para botões de A+/A- */
 
 .dock {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
@@ -172,7 +172,7 @@ label { font-weight: 700; display: block; margin-bottom: .25rem; }
   white-space: pre-wrap;  /* respeita \n */
 }
 
-.section-title { font-weight: 800; margin-top: 1.25rem; font-size: 1.1em; }
+.section-title { font-weight: 800; margin-top: 1rem; font-size: 1.1em; }
 
 .toolbar { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
 
@@ -187,7 +187,7 @@ th { position: sticky; top: 3.2rem; background: var(--surface); z-index: 1; }
 }
 
 /* Estados de foco visíveis e claros */
-a { color: var(--fg); text-decoration-thickness: 3px; text-underline-offset: 3px; }
+a { color: var(--fg); text-decoration-thickness: auto; text-underline-offset: 3px; }
 a:focus-visible { outline: 3px solid var(--brand-4); outline-offset: 2px; border-radius: 6px; }
 
 /* Esconde elementos apenas visualmente (p/ leitores de tela) */
@@ -213,14 +213,14 @@ a:focus-visible { outline: 3px solid var(--brand-4); outline-offset: 2px; border
 
   .title {
     text-align: center;
-    font-size: 1.5em;
+    font-size: 1em;
   }
 
   nav {
     display: flex;
-    flex-wrap: wrap;
+    /*flex-wrap: wrap;*/
     justify-content: center;
-    gap: .5rem;
+    gap: .2rem;
   }
 
   nav .btn {
@@ -239,7 +239,7 @@ a:focus-visible { outline: 3px solid var(--brand-4); outline-offset: 2px; border
   
   /* 4. Cartões e tabelas no mobile */
   .card {
-    padding: .3rem;
+    padding: .2rem;
   }
   
   th, td {
