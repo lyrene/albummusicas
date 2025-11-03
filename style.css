@@ -243,7 +243,7 @@ a:focus-visible { outline: 3px solid var(--brand-4); outline-offset: 2px; border
   }
   
   th, td {
-    padding: .4rem;
+    padding: .2rem;
   }
   
   /* Esconder a coluna de Tags no mobile para economizar espaço */
