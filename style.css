@@ -1,0 +1,254 @@
+/*
+  =============================================
+  ÁLBUM DE KARAOKÊ — ESTILOS
+  ---------------------------------------------
+  - Foco em acessibilidade (60+) e mobile-first
+  - Alto contraste opcional, botões grandes, fonte ajustável
+  - Modularizado do arquivo original KaraokeSEMLYRICS.html
+  =============================================
+*/
+
+:root {
+  --bg: #fffaf3;          /* tom quente festivo */
+  --fg: #1d1b16;          /* texto principal */
+  --muted: #5b5549;       /* textos auxiliares */
+  --brand: #4cc9f0;       /* AZUL VIBRANTE (novo padrão para botões) */
+  --brand-2: #ffd166;     /* amarelo suave */
+  --brand-3: #06d6a0;     /* verde festivo */
+  --brand-4: #4cc9f0;     /* azul vibrante */
+  --surface: #fff;        /* cartões */
+  --shadow: 0 4px 16px rgba(0,0,0,.08); /* Sombra mais suave */
+  --radius: 12px;         /* Raio de borda um pouco menor */
+  --font-scale: 1.15;     /* ajuste global de fonte */
+  --line: 1.6;            /* line-height base */
+  --btn-height: 45px;     /* Altura padrão para todos os botões */
+  --btn-font-size: 1.0rem; /* Tamanho de fonte padrão para botões */
+}
+
+[data-contrast="high"] {
+  --bg: #000;            
+  --fg: #fff;            
+  --muted: #d0d0d0;      
+  --surface: #111;        
+  --brand: #00e5ff;      /* Azul ciano para alto contraste */
+  --brand-2: #ffea00;    
+  --brand-3: #00ff88;    
+  --brand-4: #64b5f6;    
+  --shadow: 0 0 0 rgba(0,0,0,0);
+}
+
+/* 2. Header e Footer fixos */
+html { font-size: calc(18px * var(--font-scale)); }
+body { 
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  line-height: var(--line);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+
+/* Fundo festivo sutil (confetes em gradientes) */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(12px 12px at 80% 20%, var(--brand) 10%, transparent 11%),
+    radial-gradient(10px 10px at 80% 10%, var(--brand-2) 10%, transparent 11%),
+    radial-gradient(8px 8px at 30% 70%, var(--brand-3) 10%, transparent 11%),
+    radial-gradient(9px 9px at 70% 60%, var(--brand-4) 10%, transparent 11%);
+  opacity: .15;
+  filter: blur(.3px);
+}
+
+/* Layout principal */
+header {
+  position: sticky; top: 0; z-index: 50;
+  background: color-mix(in oklab, var(--surface) 92%, var(--brand-2) 8%);
+  box-shadow: var(--shadow);
+  /* 2. Header e Footer fixos: Usar font-size fixo para o header */
+  font-size: 1rem; 
+  padding: .75rem clamp(.75rem, 4vw, 1.25rem);
+}
+
+.bar { display: grid; gap: .75rem; align-items: center;
+  grid-template-columns: 1fr auto; }
+
+.title {
+  font-weight: 800; letter-spacing:.3px; font-size: 1.25em; /* Usar 'em' para ser relativo ao header fixo */
+}
+
+nav .btn { margin-inline: .25rem; }
+
+main { 
+  padding: 1rem clamp(.75rem, 3vw, 1.5rem) 5rem; /* espaço inferior p/ dock */
+  max-width: 920px; margin: 0 auto;
+}
+
+/* 4. Cartões menores e melhor aproveitamento de espaço */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1rem;
+  margin-bottom: 1rem; /* Adicionado margem para separar cartões */
+}
+
+.grid { display: grid; gap: 1rem; }
+.grid.two { grid-template-columns: 1fr; }
+@media (min-width: 800px) {
+  .grid.two { grid-template-columns: 1fr 1fr; }
+}
+
+/* 1. Botões Azuis e Padronizados */
+.btn {
+  --_pad-v: calc((var(--btn-height) - var(--btn-font-size) * var(--line)) / 2);
+  --_pad-h: 1.1rem;
+  --_rad: 999px;
+  appearance: none; border: 0; border-radius: var(--_rad);
+  padding: var(--_pad-v) var(--_pad-h); 
+  font-weight: 700; cursor: pointer;
+  font-size: var(--btn-font-size); /* Tamanho de fonte padronizado */
+  height: var(--btn-height); /* Altura padronizada */
+  display: inline-flex; /* Para garantir que o padding funcione bem com a altura */
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap; /* Evita quebra de linha */
+  
+  /* Cor Azul */
+  background: linear-gradient(180deg, var(--brand), color-mix(in oklab, var(--brand) 70%, #0000 30%));
+  color: #fff; /* Texto branco para contraste no azul */
+  text-shadow: 0 1px 1px rgba(0,0,0,.1);
+  mix-blend-mode: normal;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.btn:hover {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--brand) 90%, #fff 10%), color-mix(in oklab, var(--brand) 80%, #000 20%));
+  box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.btn.secondary {
+  /* Usar uma variação do azul, talvez mais clara ou com borda */
+  background: var(--surface);
+  color: var(--brand);
+  border: 2px solid var(--brand);
+  text-shadow: none;
+}
+
+.btn.ghost { 
+  background: transparent; 
+  color: var(--fg);
+  outline: 2px solid color-mix(in oklab, var(--fg) 20%, #0000 80%); 
+  text-shadow: none;
+}
+
+.btn:focus-visible { outline: 3px solid var(--brand-4); outline-offset: 2px; }
+.btn.big { font-size: 1.1rem; } /* Manter 'big' para botões de A+/A- */
+
+.dock {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+  background: color-mix(in oklab, var(--surface) 95%, var(--brand-3) 5%);
+  box-shadow: 0 -8px 24px rgba(0,0,0,.08);
+  padding: .5rem;
+  display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap;
+  /* 2. Header e Footer fixos: Usar font-size fixo para o footer */
+  font-size: 1rem; 
+}
+
+/* Inputs grandes e legíveis */
+input[type="search"], input[type="text"], textarea, select {
+  font: inherit; line-height: 1.5; color: inherit;
+  border-radius: 12px; border: 2px solid color-mix(in oklab, var(--fg) 15%, #0000 85%);
+  padding: .75rem 1rem; background: var(--surface);
+  width: 100%; box-sizing: border-box;
+}
+label { font-weight: 700; display: block; margin-bottom: .25rem; }
+
+.muted { color: var(--muted); }
+.kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background: color-mix(in oklab, var(--fg) 10%, #0000 90%); padding:.1rem .4rem; border-radius: 6px; }
+
+/* Letras: modo leitura confortável */
+.lyrics {
+  font-size: clamp(1rem, 2.6vw + .5rem, 2rem);
+  line-height: calc(var(--line) + .1);
+  white-space: pre-wrap;  /* respeita \n */
+}
+
+.section-title { font-weight: 800; margin-top: 1.25rem; font-size: 1.1em; }
+
+.toolbar { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+
+/* 4. Tabela de índice com melhor aproveitamento de espaço */
+table { width:100%; border-collapse: collapse; }
+th, td { padding: .5rem; border-bottom: 1px solid color-mix(in oklab, var(--fg) 15%, #0000 85%); text-align: left; } /* Padding reduzido */
+th { position: sticky; top: 3.2rem; background: var(--surface); z-index: 1; }
+
+/* 4. Ajuste para os cartões de música no índice */
+.card a[data-goto] {
+  padding: .75rem 1rem; /* Padding reduzido */
+}
+
+/* Estados de foco visíveis e claros */
+a { color: var(--fg); text-decoration-thickness: 3px; text-underline-offset: 3px; }
+a:focus-visible { outline: 3px solid var(--brand-4); outline-offset: 2px; border-radius: 6px; }
+
+/* Esconde elementos apenas visualmente (p/ leitores de tela) */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+/* Animação sutil para destaque de verso (respeita reduced-motion) */
+@media (prefers-reduced-motion: no-preference) {
+  .highlight { animation: glow 1.4s ease-in-out 1; }
+  @keyframes glow { from { background: color-mix(in oklab, var(--brand-3) 20%, #0000 80%);} to { background: transparent; } }
+}
+
+/* 3. Responsividade para Celular (Mobile-First) */
+@media (max-width: 600px) {
+  header {
+    padding: .5rem 1rem;
+  }
+  
+  .bar {
+    /* Título acima dos menus */
+    grid-template-columns: 1fr; 
+    gap: .5rem;
+  }
+
+  .title {
+    text-align: center;
+    font-size: 1.5em;
+  }
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .5rem;
+  }
+
+  nav .btn {
+    margin-inline: 0;
+    flex-grow: 1; /* Botões ocupam a largura disponível */
+    min-width: 100px;
+  }
+
+  .dock {
+    padding: .5rem;
+  }
+  
+  .dock .btn {
+    flex-grow: 1;
+  }
+  
+  /* 4. Cartões e tabelas no mobile */
+  .card {
+    padding: .75rem;
+  }
+  
+  th, td {
+    padding: .4rem;
+  }
+  
+  /* Esconder a coluna de Tags no mobile para economizar espaço */
+  table th:nth-child(3), table td:nth-child(3) {
+    display: none;
+  }
+}
+
