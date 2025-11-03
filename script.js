@@ -108,7 +108,7 @@ function renderHome() {
     </section>
 
     <section class="card">
-      <h2 id="idx-cantores">Índice por cantor/intérprete</h2>
+      <h2 id="idx-cantores">Índice por cantor</h2>
       ${renderArtists(byArtist)}
     </section>
 
@@ -198,7 +198,7 @@ function songCard(s) {
 function renderSongsTable(list) {
   const rows = list.map(s => `
     <tr>
-      <td style="width:42%"><a href="#/cancao/${s.id}" data-song-id="${s.id}"><strong>${escapeHTML(s.title)}</strong></a></td>
+      <td style="width:42%"><a href="#/cancao/${s.id}" data-song-id="${s.id}">${escapeHTML(s.title)}</a></td>
       <td style="width:42%">${escapeHTML(s.artist)}</td>
       <td class="muted">${(s.tags||[]).slice(0,3).join(', ')}</td>
     </tr>`).join('');
@@ -206,7 +206,7 @@ function renderSongsTable(list) {
     <div class="card" role="region" aria-label="Índice de músicas">
       <table>
         <thead>
-          <tr><th>Título</th><th>Cantor/Intérprete</th><th>Tags</th></tr>
+          <tr><th>Título</th><th>Artista</th><th>Tags</th></tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>
@@ -217,7 +217,7 @@ function renderArtists(group) {
   const out = Object.keys(group).sort((a,b)=> a.localeCompare(b, 'pt-BR')).map(artist => {
     const items = group[artist].map(s => `<li><a href="#/cancao/${s.id}" data-song-id="${s.id}">${escapeHTML(s.title)}</a></li>`).join('');
     return `<details>
-        <summary style="font-weight:800">${escapeHTML(artist)} <span class="muted">(${group[artist].length})</span></summary>
+        <summary>${escapeHTML(artist)} <span class="muted">(${group[artist].length})</span></summary>
         <ul>${items}</ul>
       </details>`;
   }).join('');
@@ -341,35 +341,5 @@ window.addEventListener('keydown', (e)=>{
 window.addEventListener('hashchange', ()=> navigate(location.hash));
 loadSongs(); navigate(location.hash || '#');
 
-// Expor função para o botão de exportar no diálogo (se for mantido)
-// O botão de exportar foi movido para o cabeçalho no HTML
-// Se o diálogo for mantido, o botão de exportar deve ser ligado aqui
-// Como o diálogo foi removido, o botão de exportar foi simplificado no HTML
-// Mantendo a função exportJSON para uso futuro ou se o usuário quiser reintroduzir.
-// O botão de exportar foi ligado ao botão "Contraste" no HTML para simplificar a interface.
-// O botão "Contraste" agora tem um novo propósito secundário.
+
 $('#btn-contraste').addEventListener('click', toggleContrast);
-// Se o usuário quiser o botão de exportar separado, ele deve ser adicionado ao HTML e ligado aqui.
-// Por enquanto, o botão de exportar foi removido do JS, pois o diálogo foi removido.
-// A função exportJSON é mantida, mas não está ligada a um botão no HTML final.
-// O usuário pediu para remover código não utilizado. O diálogo e a função exportJSON não estão mais ligados.
-// Vou remover a função exportJSON e o listener do botão de exportar do JS final, pois o diálogo foi removido no HTML.
-
-// Removendo código não utilizado (exportJSON e listener)
-// A função exportJSON foi mantida no JS para o caso de o usuário querer reintroduzir a funcionalidade de backup.
-// No entanto, o listener do botão de exportar foi removido do HTML e do JS.
-// Vou manter a função exportJSON no JS, mas não vou ligá-la a nenhum botão no HTML final.
-// O usuário pode reintroduzir o botão se quiser.
-
-// Removendo o listener de exportar que estava no código original
-// $('#btn-exportar').addEventListener('click', exportJSON); // Removido
-
-// A função exportJSON será mantida, mas não ligada a um botão, pois o diálogo foi removido.
-// O usuário pode reintroduzir o botão se quiser.
-
-// Finalizando a limpeza do JS
-// O código original tinha:
-// $('#btn-exportar').addEventListener('click', exportJSON);
-// Vou remover esta linha, pois o botão e o diálogo foram removidos do HTML.
-
-// O código final do JS está limpo e contém apenas o necessário.
