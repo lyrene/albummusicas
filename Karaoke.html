@@ -1,0 +1,1087 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Álbum de Karaokê — Festa 80 Anos</title>
+  <meta name="description" content="Álbum de letras para festa de karaokê" />
+  <style>
+    /*
+      =============================================
+      ÁLBUM DE KARAOKÊ — SITE ESTÁTICO
+      ---------------------------------------------
+      - Abrir direto no navegador (file:///)
+      - Foco em acessibilidade (60+) e mobile-first
+      - Alto contraste opcional, botões grandes, fonte ajustável
+      - Índice por música e por cantor, busca instantânea
+      - Navegação por hash (#/cancao/ID) sem servidor
+      - JSON embutido (seguro para file://); pode migrar depois para arquivo .json
+      =============================================
+    */
+
+    :root {
+      --bg: #fffaf3;          /* tom quente festivo */
+      --fg: #1d1b16;          /* texto principal */
+      --muted: #5b5549;       /* textos auxiliares */
+      --brand: #ff7a59;       /* laranja alegre */
+      --brand-2: #ffd166;     /* amarelo suave */
+      --brand-3: #06d6a0;     /* verde festivo */
+      --brand-4: #4cc9f0;     /* azul vibrante */
+      --surface: #fff;        /* cartões */
+      --shadow: 0 8px 32px rgba(0,0,0,.08);
+      --radius: 16px;
+      --font-scale: 1.15;     /* ajuste global de fonte */
+      --line: 1.6;            /* line-height base */
+    }
+
+    [data-contrast="high"] {
+      --bg: #000;            
+      --fg: #fff;            
+      --muted: #d0d0d0;      
+      --surface: #111;        
+      --brand: #00e5ff;      
+      --brand-2: #ffea00;    
+      --brand-3: #00ff88;    
+      --brand-4: #64b5f6;    
+      --shadow: 0 0 0 rgba(0,0,0,0);
+    }
+
+    html { font-size: calc(18px * var(--font-scale)); }
+    body { 
+      margin: 0; background: var(--bg); color: var(--fg);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      line-height: var(--line);
+      -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    }
+
+    /* Fundo festivo sutil (confetes em gradientes) */
+    body::before {
+      content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        radial-gradient(12px 12px at 10% 20%, var(--brand) 10%, transparent 11%),
+        radial-gradient(10px 10px at 80% 10%, var(--brand-2) 10%, transparent 11%),
+        radial-gradient(8px 8px at 30% 70%, var(--brand-3) 10%, transparent 11%),
+        radial-gradient(9px 9px at 70% 60%, var(--brand-4) 10%, transparent 11%);
+      opacity: .15;
+      filter: blur(.3px);
+    }
+
+    /* Layout principal */
+    header {
+      position: sticky; top: 0; z-index: 50;
+      background: color-mix(in oklab, var(--surface) 92%, var(--brand-2) 8%);
+      box-shadow: var(--shadow);
+      padding: .75rem clamp(.75rem, 4vw, 1.25rem);
+    }
+
+    .bar { display: grid; gap: .75rem; align-items: center;
+      grid-template-columns: 1fr auto; }
+
+    .title {
+      font-weight: 800; letter-spacing:.3px; font-size: 1.25rem;
+    }
+
+    nav .btn { margin-inline: .25rem; }
+
+    main { 
+      padding: 1rem clamp(.75rem, 3vw, 1.5rem) 5rem; /* espaço inferior p/ dock */
+      max-width: 920px; margin: 0 auto;
+    }
+
+    /* Cartões e listas */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1rem;
+    }
+
+    .grid { display: grid; gap: 1rem; }
+    .grid.two { grid-template-columns: 1fr; }
+    @media (min-width: 800px) {
+      .grid.two { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Botões grandes e acessíveis */
+    .btn {
+      --_pad: .9rem; --_rad: 999px;
+      appearance: none; border: 0; border-radius: var(--_rad);
+      padding: var(--_pad) 1.1rem; font-weight: 700; cursor: pointer;
+      background: linear-gradient(180deg, var(--brand), color-mix(in oklab, var(--brand) 70%, #0000 30%));
+      color: #000; mix-blend-mode: normal;
+    }
+    .btn.secondary {
+      background: color-mix(in oklab, var(--brand-4) 70%, #fff 30%);
+    }
+    .btn.ghost { background: transparent; outline: 2px solid color-mix(in oklab, var(--fg) 20%, #0000 80%); }
+    .btn:focus-visible { outline: 3px solid var(--brand-4); outline-offset: 2px; }
+    .btn.big { font-size: 1.0rem; }
+
+    .dock {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+      background: color-mix(in oklab, var(--surface) 95%, var(--brand-3) 5%);
+      box-shadow: 0 -8px 24px rgba(0,0,0,.08);
+      padding: .5rem;
+      display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap;
+    }
+
+    /* Inputs grandes e legíveis */
+    input[type="search"], input[type="text"], textarea, select {
+      font: inherit; line-height: 1.5; color: inherit;
+      border-radius: 12px; border: 2px solid color-mix(in oklab, var(--fg) 15%, #0000 85%);
+      padding: .75rem 1rem; background: var(--surface);
+      width: 100%; box-sizing: border-box;
+    }
+    label { font-weight: 700; display: block; margin-bottom: .25rem; }
+
+    .muted { color: var(--muted); }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background: color-mix(in oklab, var(--fg) 10%, #0000 90%); padding:.1rem .4rem; border-radius: 6px; }
+
+    /* Letras: modo leitura confortável */
+    .lyrics {
+      font-size: clamp(1rem, 2.6vw + .5rem, 2rem);
+      line-height: calc(var(--line) + .1);
+      white-space: pre-wrap;  /* respeita \n */
+    }
+
+    .section-title { font-weight: 800; margin-top: 1.25rem; font-size: 1.1em; }
+
+    .toolbar { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+
+    /* Tabela de índice com letras grandes */
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding: .75rem; border-bottom: 1px solid color-mix(in oklab, var(--fg) 15%, #0000 85%); text-align: left; }
+    th { position: sticky; top: 3.2rem; background: var(--surface); z-index: 1; }
+
+    /* Estados de foco visíveis e claros */
+    a { color: var(--fg); text-decoration-thickness: 3px; text-underline-offset: 3px; }
+    a:focus-visible { outline: 3px solid var(--brand-4); outline-offset: 2px; border-radius: 6px; }
+
+    /* Esconde elementos apenas visualmente (p/ leitores de tela) */
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+    /* Animação sutil para destaque de verso (respeita reduced-motion) */
+    @media (prefers-reduced-motion: no-preference) {
+      .highlight { animation: glow 1.4s ease-in-out 1; }
+      @keyframes glow { from { background: color-mix(in oklab, var(--brand-3) 20%, #0000 80%);} to { background: transparent; } }
+    }
+  </style>
+</head>
+<body data-contrast="normal">
+  <a class="sr-only" href="#conteudo">Pular para o conteúdo</a>
+  <header role="banner">
+    <div class="bar">
+      <div class="title" aria-live="polite" aria-atomic="true">🎉 Álbum de Karaokê — 80 Anos</div>
+      <nav aria-label="Menu principal">
+        <button class="btn" id="btn-home" aria-label="Ir para o índice">🏠 Início</button>
+        <!--button class="btn secondary" id="btn-aleatoria" aria-label="Abrir uma música aleatória">🎲 Aleatória</button-->
+        <!--button class="btn ghost" id="btn-config" aria-haspopup="dialog" aria-controls="dialog-config">⚙️ Ajustes</button-->
+        <button class="btn big" id="btn-menor" title="Diminuir fonte (tecla -)">A−</button>
+        <button class="btn big" id="btn-maior" title="Aumentar fonte (tecla +)">A+</button>
+        <button class="btn big secondary" id="btn-contraste" title="Alternar alto contraste (tecla H)">Contraste</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo" role="main" tabindex="-1">
+    <!-- CONTEÚDO ROTEADO VIA JS -->
+  </main>
+
+  <!--footer class="dock" role="contentinfo" aria-label="Atalhos">
+    <button class="btn big" id="btn-menor" title="Diminuir fonte (tecla -)">A−</button>
+    <button class="btn big" id="btn-maior" title="Aumentar fonte (tecla +)">A+</button>
+    <button class="btn big secondary" id="btn-contraste" title="Alternar alto contraste (tecla H)">Alto contraste</button>
+    <button class="btn big ghost" id="btn-tela-cheia" title="Tela cheia (tecla F)">Tela cheia</button>
+  </footer-->
+
+  <!-- DIÁLOGO DE AJUSTES SIMPLES -->
+  <dialog id="dialog-config" aria-labelledby="dlg-title" style="max-width:720px;border:none;border-radius:16px; box-shadow: var(--shadow);">
+    <form method="dialog" class="grid">
+      <h2 id="dlg-title">Ajustes e Ajuda</h2>
+      <div class="card">
+        <p><strong>Tamanho da fonte</strong>: use os botões <span class="kbd">A−</span> e <span class="kbd">A+</span> abaixo ou as teclas <span class="kbd">-</span> e <span class="kbd">+</span>.</p>
+        <p><strong>Contraste</strong>: clique em “Alto contraste” ou tecle <span class="kbd">H</span>.</p>
+        <p><strong>Navegação</strong>: setas ↑ ↓ rolam a letra; <span class="kbd">PgDown</span> avança; <span class="kbd">PgUp</span> volta; <span class="kbd">Esc</span> retorna ao índice.</p>
+        <p><strong>Adicionar músicas</strong>: veja as instruções dentro do arquivo (comentário no topo) e na seção “Como adicionar músicas” do início. Você também pode <button class="btn secondary" id="btn-exportar" type="button">baixar um backup (.json)</button> do seu acervo atual.</p>
+        <menu style="display:flex;gap:.5rem; justify-content:flex-end;margin-top:1rem;">
+          <button class="btn ghost" value="cancel">Fechar</button>
+        </menu>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- DADOS (JSON) EMBUTIDOS — seguro para abrir via file:// -->
+  <script id="songs-data" type="application/json">
+    {
+      "meta": { "version": 1, "title": "Álbum de Karaokê" },
+  "songs": [
+    {
+      "id": "a-volta-do-boemio-nelson",
+      "title": "A Volta do Boêmio",
+      "artist": "Nelson Gonçalves",
+      "language": "pt-BR",
+      "tags": [
+        "samba"
+      ],
+      "lyrics": "Boêmia, aqui me tens de regresso\nE suplicante te peço\nA minha nova inscrição\nVoltei pra rever os amigos que um dia\nEu deixei a chorar de alegria\nMe acompanha o meu violão\nBoêmia, sabendo que andei distante\nSei que essa gente falante vai agora ironizar\nEle voltou! O boêmio voltou novamente\nPartiu daqui tão contente\nPor que razão quer voltar?\nAcontece que a mulher que floriu meu caminho\nDe ternura, meiguice e carinho\nSendo a vida do meu coração\nCompreendeu e abraçou-me dizendo a sorrir\nMeu amor, você pode partir\nNão esqueça o seu violão\nVá rever os seus rios, seus montes, cascatas\nVá sonhar em novas serenatas\nE abraçar seus amigos leais\nVá embora, pois me resta o consolo e alegria\nDe saber que depois da boemia\nÉ de mim que você gosta mais\n—---\nNegue\nNelson Gonçalves\nNegue seu amor e o seu carinho\nDiga que você já me esqueceu\nPise, machucando com jeitinho\nEste coração que ainda é seu\nDiga que meu pranto é covardia\nMas não esqueça\nQue você foi minha um dia\nDiga que já não me quer\nNegue que me pertenceu\nQue eu mostro a boca molhada\nE ainda marcada pelo beijo seu\nDiga que meu pranto é covardia\nMas não esqueça\nQue você foi minha um dia\nDiga que já não me quer\nNegue que me pertenceu\nQue eu mostro a boca molhada\nE ainda marcada pelo beijo seu"
+    },
+    {
+      "id": "fica-comigo-esta-noite-nelson",
+      "title": "Fica Comigo Esta Noite",
+      "artist": "Nelson Gonçalves",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Fica comigo esta noite\nE não te arrependerás\nLá fora o frio é um açoite\nCalor aqui tu terás\nTerás meus beijos de amor\nMinhas carícias terás\nFica comigo esta noite\nE não te arrependerás\nQuero em teus braços, querida\nAdormecer e sonhar\nEsquecer que nos deixamos\nSem nos querermos deixar\nTu ouvirás o que eu digo\nEu ouvirei o que dizes\nFica comigo esta noite\nE então seremos felizes\nQuero em teus braços, querida\nAdormecer e sonhar\nEsquecer que nos deixamos\nSem nos querermos deixar\nTu ouvirás o que eu digo\nE eu ouvirei o que dizes\nFica comigo esta noite\nE então seremos felizes"
+    },
+    {
+      "id": "naquela-mesa-nelson",
+      "title": "Naquela Mesa",
+      "artist": "Nelson Gonçalves",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Naquela mesa, ele sentava sempre\nE me dizia sempre o que é viver melhor\nNaquela mesa, ele contava histórias\nQue hoje na memória eu guardo e sei de cor\nNaquela mesa, ele juntava a gente\nE contava contente o que fez de manhã\nE nos seus olhos era tanto brilho\nQue mais que seu filho, eu fiquei seu fã\nEu não sabia que doía tanto\nUma mesa num canto, uma casa e um jardim\nSe eu soubesse quanto dói a vida\nEssa dor tão doída não doía assim\nAgora resta uma mesa na sala\nE hoje ninguém mais fala no seu bandolim\nNaquela mesa, tá faltando ele\nE a saudade dele tá doendo em mim\nNaquela mesa, tá faltando ele\nE a saudade dele tá doendo em mim\nAgora resta uma mesa na sala\nE hoje ninguém mais fala no seu bandolim\nNaquela mesa, tá faltando ele\nE a saudade dele tá doendo em mim\nNaquela mesa, tá faltando ele\nE a saudade dele tá doendo em mim\nEu não sabia que doía tanto\nUma mesa num canto, uma casa e um jardim\nSe eu soubesse quanto dói a vida\nEssa dor tão doída não doía assim\nAgora resta uma mesa na sala\nE hoje ninguém mais fala no seu bandolim\nNaquela mesa, tá faltando ele\nE a saudade dele tá doendo em mim\nNaquela mesa, tá faltando ele\nE a saudade dele tá doendo em mim"
+    },
+    {
+      "id": "os-verdes-campos-da-minha-terra-agnaldo",
+      "title": "Os Verdes Campos da Minha Terra",
+      "artist": "Agnaldo Timóteo",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Se algum dia à minha terra eu voltar\nQuero encontrar as mesmas coisas que deixei\nQuando o trem parar na estação\nEu sentirei no coração\nA alegria de chegar\nDe rever a terra em que nasci\nE correr como em criança\nNos verdes campos do lugar\nQuero encontrar a sorrir para mim\nO meu amor na estação a me esperar\nPegarei novamente a sua mão\nE seguiremos com emoção\nPros verdes campos do lugar\nNesse instante que eu vivo a esperar\nSempre a sonhar na minha grande solidão\nE no sonho eu consigo transformar\nO frio piso do meu quarto\nNos verdes campos do lugar\nE revivo os momentos de alegria\nCom meu amor a passear\nNos verdes campos do meu lar\nSentimental Demais\nAltemar Dutra\nSentimental eu sou\nEu sou demais\nEu sei que sou assim\nPorque assim ela me faz\nAs músicas que eu\nVivo a cantar têm o sabor igual\nPor isso é que se diz\nComo ele é sentimental\nRomântico é sonhar\nE eu sonho assim\nCantando estas canções\nPara quem ama igual a mim\nE quem achar alguém\nComo eu achei verá que é natural\nFicar como eu fiquei\nCada vez mais sentimental\nE quem achar alguém\nComo eu achei verá que é natural\nFicar como eu fiquei\nCada vez mais sentimental"
+    },
+    {
+      "id": "o-trovador-altemar",
+      "title": "O Trovador",
+      "artist": "Altemar Dutra",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Sonhei que eu era um dia um trovador\nDos velhos tempos que não voltam mais\nCantava assim a toda hora\nAs mais lindas modinhas\nDe meu rio de outrora\nSinhá mocinha de olhar fugaz\nSe encantava com os meus versos de rapaz\nQual seresteiro ou menestrel do amor\nA suspirar sob os balcões em flor\nNa noite antiga do meu Rio\nPelas ruas do Rio\nEu passava a cantar novas trovas\nEm provas de amor ao luar\nE via então de um lampião de gás\nNa janela a flor mais bela em tristes ais"
+    },
+    {
+      "id": "perfidia-(versao)-altemar",
+      "title": "Perfidia (versão)",
+      "artist": "Altemar Dutra",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Sofre a tua dor resignadamente\nSofre como eu sofri por ti também\nSofre e a dor vai ensinando a gente\nAmar e um dia querer bem\nAmei como ninguém te amou querida\nDe ti o menor gesto adorei\nEsquecido da própria vida\nPerfídia mandaste em troca, não esqueci\nDas rosas, das orquídeas e das violetas\nQue eu dava a ti\nDistraída no ambiente luxuoso\nEm que sempre vivias\nTu deixaste que murchassem minhas flores\nMeu buquê de fantasias\nE agora que adoras a quem te magoa\nPerdoa pelo bem que eu te quis\nPerdoa e serás feliz, feliz"
+    },
+    {
+      "id": "concerto-para-um-verao-altemar",
+      "title": "Concerto Para Um Verão",
+      "artist": "Altemar Dutra",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Foi no último verão\nQue lhe conheci, então\nO amor logo nasceu dentro de mim\nOlhando o mar azul\nBem junto a ti\nFeliz, até sonhei\nMais um ano se passou\nSó ilusão ficou\nChorei\nAs lágrimas caindo\nSobre a areia quente do verão\nOnde nós dois, vivemos o amor\nPor quê, fui voltar aqui\nPra lembrar nosso amor?\nUm ano se passou\nSó ilusão ficou\nChorei\nAs lágrimas caindo\nSobre a areia quente do verão\nOnde nós dois vivemos o amor\nPor quê, fui voltar aqui\nPra lembrar nosso amor?\nAmor, adeus!"
+    },
+    {
+      "id": "retalhos-de-cetim-benito",
+      "title": "Retalhos de Cetim",
+      "artist": "Benito Di Paula",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Ensaiei meu samba o ano inteiro\nComprei surdo e tamborim\nGastei tudo em fantasia\nEra só o que eu queria\nE ela jurou desfilar pra mim\nMinha escola estava tão bonita\nEra tudo o que eu queria ver\nEm retalhos de cetim\nEu dormi o ano inteiro\nE ela jurou desfilar pra mim\nMas chegou o carnaval\nE ela não desfilou\nEu chorei na avenida, eu chorei\nNão pensei que mentia a cabrocha, que eu tanto amei\nMinha escola estava tão bonita\nEra tudo o que eu queria ver\nEm retalhos de cetim\nEu dormi o ano inteiro\nE ela jurou desfilar pra mim\nMas chegou o carnaval\nE ela não desfilou\nEu chorei na avenida, eu chorei\nNão pensei que mentia a cabrocha, que eu tanto amei\nMas chegou o carnaval\nE ela não desfilou\nEu chorei na avenida, eu chorei\nNão pensei que mentia a cabrocha, que eu tanto amei\nMas chegou o carnaval\nE ela não desfilou\nEu chorei na avenida, eu chorei\nNão pensei que mentia a cabrocha, que eu tanto amei\nMas chegou o carnaval\nE ela não desfilou\nEu chorei na avenida, eu chorei\nNão pensei que mentia a cabrocha, que eu tanto amei"
+    },
+    {
+      "id": "ah-como-eu-amei-benito",
+      "title": "Ah! Como Eu Amei",
+      "artist": "Benito Di Paula",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "O amor que eu tenho\nGuardado no peito\nMe faz ser alegre\nSofrido e carente\nAh! Como eu amei\nEu sonho, sou verso\nSou terra, sou Sol\nSentimento aberto\nAh! Como eu amei\nAh! Eu caminhei\nAh! Não entendi\nEu era feliz, era a vida\nMinha espera acabou\nMeu corpo cansado\nE eu mais velho\nMeu sorriso\nSem graça, chorou\nAh!! Como eu amei\nAh! Eu caminhei\nTem dias que eu paro\nMe lembro e choro\nCom medo eu reflito\nQue não fui perfeito\nAh! Como eu amei\nEu sonho, sou verso\nSou terra, sou Sol\nSentimento aberto\nAh! Como eu amei\nAh! Eu caminhei\nAh! Não entendi\nEu era feliz, era a vida\nMinha espera acabou\nMeu corpo cansado\nE eu mais velho\nMeu sorriso\nSem graça, chorou\nAh! Como eu amei\nAh! Eu caminhei"
+    },
+    {
+      "id": "do-jeito-que-a-vida-quer-benito",
+      "title": "Do Jeito Que a Vida Quer",
+      "artist": "Benito Di Paula",
+      "language": "pt-BR",
+      "tags": [
+        "sentimental"
+      ],
+      "lyrics": "Ninguém sabe a mágoa que trago\nNo peito, e quem me vê sorrir desse jeito\nNem sequer sabe a minha solidão\nÉ que meu samba me ajuda na vida\nMinha dor vai passando esquecida\nVou vivendo essa vida do jeito que ela me levar\nVamos falar de mulher\nDa morena e dinheiro\nDo batuque do surdo\nE até do pandeiro\nMas não fale da vida\nQue você não sabe o que eu já passei\nMoço\nAumente esse samba que o verso não para\nBatuque mais forte e a tristeza se cala\nE eu levo essa vida do jeito que ela me levar\nÉ do jeito que a vida quer\nÉ desse jeito"
+    },
+    {
+      "id": "mulher-brasileira-benito",
+      "title": "Mulher Brasileira",
+      "artist": "Benito Di Paula",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Agora chegou a vez, vou cantar\nMulher brasileira em primeiro lugar\n(Agora chegou a vez, vou cantar)\n(Mulher brasileira em primeiro lugar)\n(Agora chegou a vez, vou cantar)\n(Mulher brasileira em primeiro lugar)\n(Agora chegou a vez, vou cantar)\n(Mulher brasileira em primeiro lugar)\nNorte a sul do meu Brasil\nCaminha sambando quem não viu\nMulher de verdade, sim, senhor\nMulher brasileira é feita de amor\n(Agora chegou a vez, vou cantar)\n(Mulher brasileira em primeiro lugar)\nMulher brasileira em primeiro lugar\n(Agora chegou a vez, vou cantar)\n(Mulher brasileira em primeiro lugar)\nNorte a sul do meu Brasil\nCaminha sambando quem não viu\nMulher de verdade, sim, senhor\nMulher brasileira é feita de amor\n(Agora chegou a vez, vou cantar)\n(Mulher brasileira em primeiro lugar)\nMulher brasileira em primeiro lugar\n(Agora chegou a vez, vou cantar)\n(Mulher brasileira em primeiro lugar)\n(Agora chegou a vez, vou cantar)\n(Mulher brasileira em primeiro lugar)\n(Agora chegou a vez, vou cantar)\n(Mulher brasileira em primeiro lugar)"
+    },
+    {
+      "id": "osso-duro-de-roer-benito",
+      "title": "Osso Duro de Roer",
+      "artist": "Benito Di Paula",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Estão querendo tirar meu nome do samba\nTirar meu tempo de bamba\nDizendo até que eu já me despedi\nMas ainda não chegou minha vez de ir embora\nDeixa essa gente falar\nÉ inveja que eles sentem\nEstão querendo acabar comigo de vez\nEu não ligo, eu não sou freguês\nVou ficar com meu samba osso duro de roer\nÉ que ainda não chegou minha vez de ir embora\nDeixa essa gente falar\nÉ inveja que eles sentem\nCanto mais um samba\nQue é pra todo mundo ver\nA minha bandeira do samba\nDeus ajuda a defender\nEstão querendo tirar meu nome do samba\nTirar meu tempo de bamba\nDizendo até que eu já me despedi\nMas ainda não chegou minha vez de ir embora\nDeixa essa gente falar\nÉ inveja que eles sentem\nEstão querendo acabar comigo de vez\nEu não ligo, eu não sou freguês\nVou ficar com meu samba osso duro de roer\nÉ que ainda não chegou minha vez de ir embora\nDeixa essa gente falar\nÉ inveja que eles sentem\nCanto mais um samba\nQue é pra todo mundo ver\nA minha bandeira do samba\nDeus ajuda a defender"
+    },
+    {
+      "id": "nao-deixe-o-samba-morrer-alcione",
+      "title": "Não Deixe o Samba Morrer",
+      "artist": "Alcione",
+      "language": "pt-BR",
+      "tags": [
+        "samba"
+      ],
+      "lyrics": "Não deixe o samba morrer\nNão deixe o samba acabar\nO morro foi feito de samba\nDe samba pra gente sambar\nQuando eu não puder\nPisar mais na avenida\nQuando as minhas pernas\nNão puderem aguentar\nLevar meu corpo\nJunto com meu samba\nO meu anel de bamba\nEntrego a quem mereça usar\nQuando eu não puder\nPisar mais na avenida\nQuando as minhas pernas\nNão puderem aguentar\nLevar meu corpo\nJunto com meu samba\nO meu anel de bamba\nEntrego a quem mereça usar\nEu vou ficar\nNo meio do povo espiando\nMinha Escola perdendo ou ganhando\nMais um carnaval\nAntes de me despedir\nDeixo ao sambista mais novo\nO meu pedido final\nAntes de me despedir\nDeixo ao sambista mais novo\nO meu pedido final\nNão deixe o samba morrer\nNão deixe o samba acabar\nO morro foi feito de samba\nDe Samba, pra gente sambar\nNão deixe o samba morrer\nNão deixe o samba acabar\nO morro foi feito de samba\nDe Samba, pra gente sambar\nQuando eu não puder\nPisar mais na avenida\nQuando as minhas pernas\nNão puderem aguentar\nLevar meu corpo\nJunto com meu samba\nO meu anel de bamba\nEntrego a quem mereça usar\nQuando eu não puder\nPisar mais na avenida\nQuando as minhas pernas\nNão puderem aguentar\nLevar meu corpo\nJunto com meu samba\nO meu anel de bamba\nEntrego a quem mereça usar\nEu vou ficar\nNo meio do povo espiando\nMinha Escola perdendo ou ganhando\nMais um carnaval\nAntes de me despedir\nDeixo ao sambista mais novo\nO meu pedido final\nAntes de me despedir\nDeixo ao sambista mais novo\nO meu pedido final\nNão deixe o samba morrer\nNão deixe o samba acabar\nO morro foi feito de samba\nDe Samba, pra gente sambar\nNão deixe o samba morrer\nNão deixe o samba acabar\nO morro foi feito de samba\nDe Samba, pra gente sambar"
+    },
+    {
+      "id": "garcom-reginaldo",
+      "title": "Garçom",
+      "artist": "Reginaldo Rossi",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Garçom\nAqui, nessa mesa de bar\nVocê já cansou de escutar\nCentenas de casos de amor\nGarçom\nNo bar, todo mundo é igual\nMeu caso é mais um, é banal\nMas preste atenção, por favor\nSaiba que o meu grande amor hoje vai se casar\nMandou uma carta pra me avisar\nDeixou em pedaços meu coração\nE pra matar a tristeza só mesa de bar\nQuero tomar todas, vou me embriagar\nSe eu pegar no sono, me deite no chão\nGarçom\nEu sei, estou enchendo o saco\nMas todo bebum fica chato\nValente, e tem toda a razão\nGarçom\nMas eu, eu só quero chorar\nEu vou minha conta pagar\nPor isso eu lhe peço atenção\nSaiba que o meu grande amor hoje vai se casar\nMandou uma carta pra me avisar\nDeixou em pedaços meu coração\nE pra matar a tristeza só mesa de bar\nQuero tomar todas, vou me embriagar\nSe eu pegar no sono, me deite no chão\nSaiba que o meu grande amor hoje vai se casar\nMandou uma carta pra me avisar\nDeixou em pedaços meu coração\nE pra matar a tristeza só mesa de bar\nQuero tomar todas, vou me embriagar\nSe eu pegar no sono, me deite no chão\nMe deite no chão"
+    },
+    {
+      "id": "a-raposa-e-as-uvas-reginaldo",
+      "title": "A Raposa e as Uvas",
+      "artist": "Reginaldo Rossi",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Lembro com muita saudade\nDaquele bailinho\nQuando a gente dançava\nBem agarradinho\nQuando a gente ia mesmo\nPra se abraçar\nVocê com laquê no cabelo\nE um vestido rodado\nE aquelas anáguas\nCom tantos babados\nE você se sentava\nSó pra me mostrar\nE tudo que a gente transava\nEram três, quatro cubas\nEu era a raposa\nVocê era as uvas\nEu sempre querendo\nO teu beijo roubar\nE por mais que você\nSe esquivasse\nEu tinha certeza\nQue no fim do baile\nNa minha lambreta\nAquele broto bonito\nIa me abraçar\nQuando a orquestra\nTocava besame mucho\nEu lhe apertava\nE olhava seu busto\nDentro do corpete\nQuerendo pular\nEu todo cheiroso\nÀ lancaster\nE você à Chanel\nEu era um menino\nMas fazia o papel\nDo homem terrível\nSó pra lhe guardar\nE tudo que a gente transava\nEram três quatro cubas\nEu era a raposa\nVocê era as uvas\nE eu sempre querendo\nSeu beijo roubar\nE por mais\nQue você se esquivasse\nEu tinha certeza\nQue no fim do baile\nNa minha lambreta\nContente pra casa\nEu ia te levar\nE ao chegar em tua casa\nEm frente ao portão\nUm beijo, um abraço\nMinha mão, tua mão\nCom medo que o velho\nPudesse acordar\nA pílula já existia\nMas nem se falava\nPois nos muitos conselhos\nQue tua mãe te dava\nTinha um que dizia\nSó depois de casar\nE tudo que a gente transava\nEram três, quatro cubas\nEu era a raposa\nVocê era as uvas\nE eu sempre querendo\nTeu beijo roubar\nE por mais\nQue você se esquivasse\nEu tinha certeza\nQue no fim do baile\nNa minha lambreta\nAquele corpo bonito\nIa me abraçar\nE tudo que a gente transava\nEram três, quatro cubas\nEu a raposa\nVocê era as uvas\nE eu sempre querendo\nTeu beijo roubar\nE por mais\nQue você se esquivasse\nEu tinha certeza\nQue no fim do baile\nNa minha lambreta\nAquele corpo bonito\nIa me abraçar"
+    },
+    {
+      "id": "mon-amour,-meu-bem,-ma-femme-reginaldo",
+      "title": "Mon Amour, Meu Bem, Ma Femme",
+      "artist": "Reginaldo Rossi",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Nesse corpo meigo e tão pequeno\nHá uma espécie de veneno\nBem gostoso de provar\nComo pode haver tanto desejo\nNos seus olhos, nos seus beijos\nNo seu jeito de abraçar?\nE foi com isso\nQue você me conquistou\nCom esse jeito de menina\nE esse gosto de mulher\nE nada existe em você\nQue eu não ame\nSou metade sem você\nMon amour, meu bem, ma femme\nNesse corpo meigo e tão pequeno\nHá uma espécie de veneno\nBem gostoso de provar\nComo pode haver tanto desejo\nNos seus olhos, nos seus beijos\nNo seu jeito de abraçar?\nE foi com isso\nQue você me conquistou\nCom esse jeito de menina\nE esse gosto de mulher\nE nada existe em você\nQue eu não ame\nSou metade sem você\nMon amour, meu bem, ma femme\nMon amour, meu bem, ma femme\nMon amour, meu bem, ma femme"
+    },
+    {
+      "id": "leviana-reginaldo",
+      "title": "Leviana",
+      "artist": "Reginaldo Rossi",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Eu te amei\nMe entreguei\nDe um jeito que ninguém\nJamais se entregou\nAmor igual ao meu\nJamais vai encontrar\nAmar como eu te amo\nNinguém vai te amar\nPorque você\nFicava sussurrando junto ao meu ouvido\nMentiras misturadas com o seu gemido\nE eu acreditava na sua palavra\nLeviana!\nFazendo mil loucuras comigo na cama\nQueria acreditar que você ainda me ama\nE, apesar de tudo, eu sinto a sua falta\nLeviana!"
+    },
+    {
+      "id": "em-plena-lua-de-mel-reginaldo",
+      "title": "Em Plena Lua de Mel",
+      "artist": "Reginaldo Rossi",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Toda vez que o seu namorado sai\nVocê vai ver outro rapaz\nOlha todo mundo está comentando\nSeu cartaz tá aumentando\nMoça linda, por favor\nGuarde todo esse amor pra um rapaz\nDá vergonha de dizer\nO que disseram de você, mas ouça\nDizem que o seu coração\nVoa mais que avião\nDizem que seu amor\nSó tem gosto de fel\nVai trair o marido em plena lua de mel\nDizem que o seu coração\nVoa mais que avião\nDizem que seu amor\nSó tem gosto de fel\nVai trair o marido em plena lua de mel"
+    },
+    {
+      "id": "o-bebado-e-a-equilibrista-elis",
+      "title": "O bêbado e a equilibrista",
+      "artist": "Elis Regina",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Caía a tarde feito um viaduto\nE um bêbado trajando luto\nMe lembrou Carlitos\nA Lua, tal qual a dona do bordel\nPedia a cada estrela fria\nUm brilho de aluguel\nE nuvens\nLá no mata-borrão do céu\nChupavam manchas torturadas\nQue sufoco louco!\nO bêbado com chapéu-coco\nFazia irreverências mil\nPra noite do Brasil\nMeu Brasil que sonha\nCom a volta do irmão do Henfil\nCom tanta gente que partiu\nNum rabo de foguete\nChora a nossa Pátria, mãe gentil\nChoram Marias e Clarices\nNo solo do Brasil\nMas sei que uma dor assim pungente\nNão há de ser inutilmente\nA esperança dança\nNa corda bamba de sombrinha\nE em cada passo dessa linha\nPode se machucar\nAzar\nA esperança equilibrista\nSabe que o show de todo artista\nTem que continuar"
+    },
+    {
+      "id": "como-nossos-pais-elis",
+      "title": "Como Nossos Pais",
+      "artist": "Elis Regina",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Não quero lhe falar, meu grande amor\nDas coisas que aprendi nos discos\nQuero lhe contar como eu vivi\nE tudo o que aconteceu comigo\nViver é melhor que sonhar\nEu sei que o amor é uma coisa boa\nMas também sei que qualquer canto\nÉ menor do que a vida de qualquer pessoa\nPor isso, cuidado, meu bem\nHá perigo na esquina\nEles venceram e o sinal está fechado pra nós\nQue somos jovens\nPara abraçar seu irmão\nE beijar sua menina na rua\nÉ que se fez o seu braço\nO seu lábio e a sua voz\nVocê me pergunta pela minha paixão\nDigo que estou encantada como uma nova invenção\nEu vou ficar nesta cidade, não vou voltar pro sertão\nPois vejo vir vindo no vento cheiro de nova estação\nEu sei de tudo na ferida viva do meu coração\nJá faz tempo, eu vi você na rua\nCabelo ao vento, gente jovem reunida\nNa parede da memória\nEssa lembrança é o quadro que dói mais\nMinha dor é perceber\nQue apesar de termos feito tudo o que fizemos\nAinda somos os mesmos e vivemos\nAinda somos os mesmos e vivemos\nComo os nossos pais\nNossos ídolos ainda são os mesmos\nE as aparências não enganam, não\nVocê diz que depois deles\nNão apareceu mais ninguém\nVocê pode até dizer que eu tô por fora\nOu então que eu tô inventando\nMas é você que ama o passado e que não vê\nÉ você que ama o passado e que não vê\nQue o novo sempre vem\nHoje eu sei que quem me deu a ideia\nDe uma nova consciência e juventude\nTá em casa guardado por Deus\nContando o vil metal\nMinha dor é perceber\nQue apesar de termos feito tudo, tudo, tudo o que fizemos\nNós ainda somos os mesmos e vivemos\nAinda somos os mesmos e vivemos\nAinda somos os mesmos e vivemos\nComo os nossos pais"
+    },
+    {
+      "id": "fascinacao-elis",
+      "title": "Fascinação",
+      "artist": "Elis Regina",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Os sonhos mais lindos sonhei\nDe quimeras mil, um castelo ergui\nE no teu olhar, tonto de emoção\nCom sofreguidão, mil venturas previ\nO teu corpo é luz, sedução\nPoema divino, cheio de esplendor\nTeu sorriso quente inebria e entontece\nÉs fascinação, amor\nTeu sorriso quente inebria e entontece\nÉs fascinação, amor"
+    },
+    {
+      "id": "maria,-maria-elis",
+      "title": "Maria, Maria",
+      "artist": "Elis Regina",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Maria, Maria é um dom, uma certa magia\nUma força que nos alerta\nUma mulher que merece viver e amar\nComo outra qualquer do planeta\nMaria, Maria é o som, é a cor, é o suor\nÉ uma dose mais forte e lenta\nDe uma gente que ri quando deve chorar\nE não vive, apenas aguenta\nUma gente que ri quando deve chorar\nE não vive, apenas aguenta\nUma gente que ri quando deve chorar\nE não vive, apenas aguenta\nMas é preciso ter força, é preciso ter raça\nÉ preciso ter gana sempre\nQuem traz no corpo uma marca\nMaria, Maria mistura a dor e a alegria\nMas é preciso ter manha, é preciso ter graça\nÉ preciso ter sonho sempre\nQuem traz na pele essa marca\nPossui a estranha mania de ter fé na vida"
+    },
+    {
+      "id": "romaria-elis",
+      "title": "Romaria",
+      "artist": "Elis Regina",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "É de sonho e de pó, o destino de um só\nFeito eu, perdido em pensamentos sobre o meu cavalo\nÉ de laço e de nó, de gibeira o jiló\nDessa vida cumprida a Sol\nSou caipira, Pirapora, nossa Senhora de Aparecida\nIlumina a mina escura e funda, o trem da minha vida\nSou caipira, Pirapora, nossa Senhora de Aparecida\nIlumina a mina escura e funda, o trem da minha vida\nO meu pai foi peão, minha mãe solidão\nMeus irmãos perderam-se na vida à custa de aventuras\nDescasei, joguei, investi, desisti\nSe há sorte eu não sei, nunca vi\nSou caipira, Pirapora, nossa Senhora de Aparecida\nIlumina a mina escura e funda, o trem da minha vida\nSou caipira, Pirapora, nossa Senhora de Aparecida\nIlumina a mina escura e funda, o trem da minha vida\nMe disseram, porém, que eu viesse aqui\nPra pedir, de romaria e prece, paz nos desaventos\nComo eu não sei rezar, só queria mostrar\nMeu olhar, meu olhar, meu olhar\nSou caipira, Pirapora, nossa Senhora de Aparecida\nIlumina a mina escura e funda, o trem da minha vida\nSou caipira, Pirapora, nossa Senhora de Aparecida\nIlumina a mina escura e funda, o trem da minha vida\nSou caipira, Pirapora, nossa Senhora de Aparecida"
+    },
+    {
+      "id": "aguas-de-marco-elis",
+      "title": "Águas de Março",
+      "artist": "Elis Regina",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "É pau, é pedra, é o fim do caminho\nÉ um resto de toco, é um pouco sozinho\nÉ um caco de vidro, é a vida, é o Sol\nÉ a noite, é a morte, é o laço, é o anzol\nÉ peroba do campo, o nó da madeira\nCaingá, candeia, é o Matita Pereira\nÉ madeira de vento, tombo da ribanceira\nÉ um mistério profundo, é o queira ou não queira\nÉ o vento ventando, é o fim da ladeira\nÉ a viga, é o vão, Festa da Cumeeira\nÉ a chuva chovendo, é conversa ribeira\nDas águas de março, é o fim da canseira\nÉ o pé, é o chão, é a marcha estradeira\nPassarinho na mão, pedra de atiradeira\nUma ave no céu, uma ave no chão\nÉ um regato, é uma fonte, é um pedaço de pão\nÉ o fundo do poço, é o fim do caminho\nNo rosto, o desgosto, é um pouco sozinho\nÉ um estrepe, é um prego\nÉ uma ponta, é um ponto\nÉ um pingo pingando\nÉ uma conta, é um conto\nÉ um peixe, é um gesto, é uma prata brilhando\nÉ a luz da manhã, é o tijolo chegando\nÉ a lenha, é o dia, é o fim da picada\nÉ a garrafa de cana, o estilhaço na estrada\nÉ o projeto da casa, é o corpo na cama\nÉ o carro enguiçado, é a lama, é a lama\nÉ um passo, é uma ponte\nÉ um sapo, é uma rã\nÉ um resto de mato na luz da manhã\nSão as águas de março fechando o verão\nÉ a promessa de vida no teu coração\nÉ pau, é pedra, é o fim do caminho\nÉ um resto de toco, é um pouco sozinho\nÉ uma cobra, é um pau, é João, é José\nÉ um espinho na mão, é um corte no pé\nSão as águas de março fechando o verão\nÉ a promessa de vida no teu coração\nÉ pau, é pedra, é o fim do caminho\nÉ um resto de toco, é um pouco sozinho\nÉ um passo, é uma ponte\nÉ um sapo, é uma rã\nÉ um belo horizonte, é uma febre terçã\nSão as águas de março fechando o verão\nÉ a promessa de vida no teu coração\nÉ pau, é pedra, é o fim do caminho\nÉ um resto de toco, é um pouco sozinho\nÉ pau, é pedra, é o fim do caminho\nÉ um resto de toco, é um pouco sozinho\nPau, pedra\nFim do caminho\nResto de toco\nUm pouco sozinho\nPau, pedra\nFim do caminho\nResto de toco\nUm pouco sozinho\nPedra, caminho\nToco, sozinho\nPedra, caminho\nToco, sozinho\nPedra, caminho\nE o toco"
+    },
+    {
+      "id": "andanca-elis",
+      "title": "Andança",
+      "artist": "Elis Regina",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Vi tanta areia, andei\nDa Lua cheia eu sei\nUma saudade imensa\nVagando em verso, eu vim\nVestido de cetim\nNa mão direita, rosas\nVou levar\nVou levar\nMe dá a mão, amor\nMe leva, amor\nPor onde for, quero ser seu par\nMe dá a mão, amor\nMe leva, amor\nPor onde for, quero ser seu par\nRodei na roda, andei\nDança da moda eu sei\nCansei de ser sozinha\nVerso encantado usei\nMeu namorado é rei\nNas lendas do caminho\nOnde andei\nOnde andei\nMe dá a mão, amor\nMe leva, amor\nPor onde for, quero ser seu par\nMe dá a mão, amor\nMe leva, amor\nPor onde, for quero ser seu par"
+    },
+    {
+      "id": "madalena-elis",
+      "title": "Madalena",
+      "artist": "Elis Regina",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Ó, Madalena\nO meu peito percebeu\nQue o mar é uma gota\nComparado ao pranto meu\nFique certa\nQuando o nosso amor desperta\nLogo o Sol se desespera\nE se esconde lá na serra\nÊ, Madalena\nO que é meu não se divide\nNem tão pouco se admite\nQuem do nosso amor duvide\nAté a Lua se arrisca num palpite\nQue o nosso amor existe\nForte ou fraco\nAlegre ou triste\nÉ, Madalena\nO meu peito percebeu\nQue o mar é uma gota\nComparado ao pranto meu\nFique certa\nQuando o nosso amor desperta\nLogo o Sol se desespera\nE se esconde lá na serra\nÊ, Madalena\nO que é meu não se divide\nTão pouco se admite\nQuem do nosso amor duvide\nAté a Lua se arrisca num palpite\nQue o nosso amor existe\nForte ou fraco\nAlegre ou triste\nÔ, Madalena\nO que é meu não se divide\nNem tão pouco se admite\nQuem do nosso amor duvide\nAté a Lua se arrisca num palpite\nQue o nosso amor existe\nForte ou fraco\nAlegre ou triste"
+    },
+    {
+      "id": "vou-deitar-e-rolar-(quaquaraquaqua)-elis",
+      "title": "Vou Deitar e Rolar (Quaquaraquaqua)",
+      "artist": "Elis Regina",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Não venha querer se consolar\nQue agora não dá mais pé\nNem nunca mais vai dar\nTambém, quem mandou se levantar?\nQuem levantou pra sair\nPerde o lugar\nE agora, cadê teu novo amor?\nCadê, que ele nunca funcionou?\nCadê, que ele nada resolveu?\nQuaquaraquaquá, quem riu?\nQuaquaraquaquá, fui eu\nQuaquaraquaquá, quem riu?\nQuaquaraquaquá, fui eu\nAinda sou mais eu\nVocê já entrou na de voltar\nAgora fica na tua\nQue é melhor ficar\nPorque vai ser fogo me aturar\nQuem cai na chuva\nSó tem que se molhar\nE agora cadê, cadê você?\nCadê que eu não vejo mais, cadê?\nPois é, quem te viu e quem te vê\nQuaquaraquaquá, quem riu?\nQuaquaraquaquá, fui eu\nQuaquaraquaquá, quem riu?\nQuaquaraquaquá, fui eu\nTodo mundo se admira da mancada\nQue a Terezinha deu\nQue deu no Pira\nE ficou sem nada ter de seu\nEla não quis levar fé\nNa virada da maré\nBreque\nMas que malandro sou eu\nPra ficar dando colher de chá\nSe eu não tiver colher?\nVou deitar e rolar\nVocê já entrou na de voltar\nAgora fica na tua\nQue é melhor ficar\nPorque vai ser fogo me aturar\nQuem cai na chuva\nSó tem que se molhar\nE agora cadê, cadê você?\nCadê que eu não vejo mais, cadê?\nPois é, quem te viu e quem te vê\nQuaquaraquaquá, quem riu?\nQuaquaraquaquá, fui eu\nQuaquaraquaquá, quem riu?\nQuaquaraquaquá, fui eu\nO vento que venta aqui\nÉ o mesmo que venta lá\nE volta pro mandingueiro\nA mandinga de quem mandingar\nO vento que venta aqui\nÉ o mesmo que venta lá\nE volta pro mandingueiro\nA mandinga de quem mandingar\nQuaquaraquaquá, quem riu?\nQuaquaraquaquá, fui eu\nQuaquaraquaquá, quem riu?\nQuaquaraquaquá, fui eu"
+    },
+    {
+      "id": "dois-pra-la,-dois-pra-ca-elis",
+      "title": "Dois Pra Lá, Dois Pra Cá",
+      "artist": "Elis Regina",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Sentindo frio em minh'alma\nTe convidei pra dançar\nA tua voz me acalmava\nSão dois pra lá, dois pra cá\nMeu coração traiçoeiro\nBatia mais que o bongô\nTremia mais que as maracas\nDescompassado de amor\nMinha cabeça rodando\nRodava mais que os casais\nO teu perfume gardênia\nE não me pergunte mais\nA tua mão no pescoço\nAs tuas costas macias\nPor quanto tempo rondaram\nAs minhas noites vazias\nNo dedo um falso brilhante\nBrincos iguais ao colar\nE a ponta de um torturante\nBand-aid no calcanhar\nEu hoje me embriagando\nDe whisky com guaraná\nOuvi tua voz murmurando\nSão dois pra lá, dois pra cá\nA tua mão no pescoço\nAs tuas costas macias\nPor quanto tempo rondaram\nAs minhas noites vazias\nNo dedo um falso brilhante\nBrincos iguais ao colar\nE a ponta de um torturante\nBand-aid no calcanhar\nEu hoje me embriagando\nDe whisky com guaraná\nOuvi tua voz murmurando\nSão dois pra lá, dois pra cá\nDejaste abandonada la ilusión\nQue había en mi corazón por ti\nDejaste abandonada la ilusión\nQue había en mi corazón por ti\nDejaste abandonada la ilusión\nQue había en mi corazón por ti"
+    },
+    {
+      "id": "eu-tenho-dois-amores-marco",
+      "title": "Eu Tenho Dois Amores",
+      "artist": "Marco Paulo",
+      "language": "pt-BR",
+      "tags": [
+        "romântica"
+      ],
+      "lyrics": "Eu tenho dois amores\nQue em nada são iguais\nMas não tenho a certeza\nDe qual eu gosto mais\nMas não tenho a certeza\nDe qual eu gosto mais\nEu tenho dois amores\nQue em nada são iguais\nUma é loira e acontece\nEntre nós amor, ternura\nTão loira que até parece\nO Sol da minha loucura\nMas a outra tão morena\nÉ tal qual um homem quer\nPorque embora mais pequena\nEla é muito mais mulher\nMeu coração continua\nSem saber o que fazer\nÉ melhor amar as duas\nSem uma da outra saber\nQue este encanto não te acabe\nEu já pensei tanta vez\nPois enquanto ninguém sabe\nSomos felizes os três"
+    },
+    {
+      "id": "conceicao-cauby",
+      "title": "Conceição",
+      "artist": "Cauby Peixoto",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Conceição\nEu me lembro muito bem\nVivia no morro a sonhar\nCom coisas que o morro não tem\nFoi então\nQue lá em cima apareceu\nAlguém que lhe disse a sorrir\nQue, descendo à cidade, ela iria subir\nSe subiu\nNinguém sabe, ninguém viu\nPois hoje o seu nome mudou\nE estranhos caminhos pisou\nSó eu sei\nQue tentando a subida desceu\nE agora daria um milhão\nPara ser outra vez Conceição"
+    },
+    {
+      "id": "bastidores-cauby",
+      "title": "Bastidores",
+      "artist": "Cauby Peixoto",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Chorei, chorei, até ficar com dó de mim\nE me tranquei no camarim\nTomei um calmante\nUm excitante e um bocado de gim\nAmaldiçoei o dia em que te conheci\nCom muitos brilhos me vesti\nDepois me pintei, me pintei, me pintei, me pintei\nCantei, cantei\nComo é cruel cantar assim\nE num instante de ilusão,\nTe vi pelo salão\nA caçoar de mim\nNão me troquei,\nVoltei correndo ao nosso lar,\nVoltei pra me certificar\nQue tu nunca mais vais voltar, vais voltar, vais voltar\nCantei, cantei\nNem sei como eu cantava assim\nSó sei que todo cabaré\nMe aplaudiu de pé quando cheguei ao fim.\nMas não bisei,\nVoltei correndo ao nosso lar,\nVoltei pra me certificar\nQue tu nunca mais vais voltar, vais voltar, vais voltar\nCantei, cantei\nJamais cantei tão lindo assim\nE os homens lá pedindo bis\nBebâdos e febris à se rasgar por mim\nChorei, chorei até ficar com dó de mim."
+    },
+    {
+      "id": "emocoes-cauby",
+      "title": "Emoções",
+      "artist": "Cauby Peixoto",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Quando eu estou aqui\nEu vivo esse momento lindo\nOlhando pra você\nE as mesmas emoções sentindo\nSão tantas já vividas\nSão momentos que eu não esqueci\nDetalhes de uma vida\nHistórias que eu contei aqui\nAmigos eu ganhei\nSaudades eu senti, partindo\nE às vezes eu deixei\nVocê me ver chorar, sorrindo\nSei tudo que o amor\nÉ capaz de me dar\nEu sei já sofri\nMas não deixo de amar\nSe chorei\nOu se sorri\nO importante\nÉ que emoções eu vivi\nSão tantas já vividas\nSão momentos que eu não esqueci\nDetalhes de uma vida\nHistórias que eu contei aqui\nMas eu estou aqui\nVivendo esse momento lindo\nDe frente pra você\nE as emoções se repetindo\nEm paz com a vida\nE o que ela me traz\nNa fé que me faz\nOtimista demais\nSe chorei\nOu se sorri\nO importante\nÉ que emoções eu vivi\nSe chorei\nOu se sorri\nO importante\nÉ que emoções eu vivi"
+    },
+    {
+      "id": "ninguem-e-de-ninguem-cauby",
+      "title": "Ninguém É de Ninguém",
+      "artist": "Cauby Peixoto",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Ninguém é de ninguém\nNa vida tudo passa\nNinguém é de ninguém\nAté quem nos abraça\nNão há recordação\nQue não tenha seu fim\nNinguém é de ninguém\nO mundo é mesmo assim\nJá tive a sensação\nQue amava com fervor\nJá tive a ilusão\nQue tinha um grande amor\nTalvez alguém pensou\nNo amor que eu sonhei\nE que perdi também\nE assim vi que na vida\nNinguém é de ninguém\nJá tive a sensação\nQue amava com fervor\nJá tive a ilusão\nQue tinha um grande amor\nTalvez alguém pensou\nNo amor que eu sonhei\nE que perdi também\nE assim vi que na vida\nNinguém é de ninguém"
+    },
+    {
+      "id": "saudade-de-rosa-bartô",
+      "title": "Saudade de Rosa",
+      "artist": "Bartô Galeno",
+      "language": "pt-BR",
+      "tags": [
+        "sentimental"
+      ],
+      "lyrics": "Eu, ontem, tive tanta sorte\nA malvada da Morte andou perto de mim\nEu, no meu carro, dei bobeira\nNuma brincadeira, quase levo o fim\nEu, no meu carro, dei bobeira\nNuma brincadeira, quase levo o fim\nAndava a toda velocidade\nPra superar a saudade\nQue andava junto a mim\nEssa saudade era de Rosa\nCoisa mais linda do meu jardim\nEssa saudade era de Rosa\nCoisa mais linda do meu jardim\nEu também sou filho do Divino\nPor ser menino, Deus me perdoou\nCompreendi que estava errado\nQue não se deve morrer por amor\nCompreendi que estava errado\nQue não se deve morrer por amor\nEu, ontem, tive tanta sorte\nA malvada da Morte andou perto de mim\nEu, no meu carro, dei bobeira\nNuma brincadeira, quase levo o fim\nAndava a toda velocidade\nPra superar a saudade\nQue andava junto a mim\nEssa saudade era de Rosa\nCoisa mais linda do meu jardim\nEssa saudade era de Rosa\nCoisa mais linda do meu jardim\nEssa saudade era de Rosa\nCoisa mais linda do meu jardim"
+    },
+    {
+      "id": "no-toca-fita-do-meu-carro-bartô",
+      "title": "No Toca Fita do Meu Carro",
+      "artist": "Bartô Galeno",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "No toca-fita do meu carro\nUma canção me faz lembrar você\nAcendo mais um cigarro\nE procuro lhe esquecer\nDo meu lado está vazio\nVocê tanta falta me faz\nPois cada dia que passa\nEu te amo muito mais\nPois cada dia que passa\nEu te amo muito mais\nEncontrei no porta-luva um lencinho\nQue você esqueceu\nE num cantinho bem bordado\nO seu nome junto ao meu\nE num cantinho bem bordado\nO seu nome junto ao meu"
+    },
+    {
+      "id": "gostava-tanto-de-voce-tim",
+      "title": "Gostava Tanto de Você",
+      "artist": "Tim Maia",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Nem sei por que você se foi\nQuantas saudades eu senti\nE de tristezas vou viver\nE aquele adeus não pude dar\nVocê marcou na minha vida\nViveu, morreu na minha história\nChego a ter medo do futuro\nE da solidão que em minha porta bate\nE eu\nGostava tanto de você\nGostava tanto de você\nEu corro, fujo desta sombra\nEm sonho vejo este passado\nE na parede do meu quarto\nAinda está o seu retrato\nNão quero ver pra não lembrar\nPensei até em me mudar\nLugar qualquer que não exista\nO pensamento em você\nE eu\nGostava tanto de você\nGostava tanto de você\nNão sei por que você se foi\nQuantas saudades eu senti\nE de tristezas vou viver\nE aquele adeus não pude dar\nVocê marcou em minha vida\nViveu, morreu na minha história\nChego a ter medo do futuro\nE da solidão que em minha porta bate\nE eu\nGostava tanto de você\nGostava tanto de você\nEu corro, fujo desta sombra\nEm sonho vejo este passado\nE na parede do meu quarto\nAinda está o seu retrato\nNão quero ver pra não lembrar\nPensei até em me mudar\nLugar qualquer que não exista\nO pensamento em você\nE eu\nGostava tanto de você\nGostava tanto de você\nEu gostava tanto de você\nEu gostava tanto de você\nEu gostava tanto de você\nEu gostava, eu gostava tanto de você\nEu gostava tanto, tanto de você\nDe você\nEu gostava, eu gostava\nEu gostava tanto de você\nEu gostava tanto de você\nEu gostava tanto de você"
+    },
+    {
+      "id": "azul-da-cor-do-mar-tim",
+      "title": "Azul da Cor do Mar",
+      "artist": "Tim Maia",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Ah, se o mundo inteiro me pudesse ouvir\nTenho muito pra contar, dizer que aprendi\nE, na vida, a gente tem que entender\nQue um nasce pra sofrer enquanto o outro ri\nMas quem sofre sempre tem que procurar\nPelo menos vir a achar razão para viver\nVer na vida algum motivo pra sonhar\nTer um sonho todo azul, azul da cor do mar\nMas quem sofre sempre tem que procurar\nPelo menos vir a achar razão para viver\nVer na vida algum motivo pra sonhar\nTer um sonho todo azul, azul da cor do mar"
+    },
+    {
+      "id": "ainda-ontem-chorei-de-saudade-moacyr",
+      "title": "Ainda Ontem Chorei de Saudade",
+      "artist": "Moacyr Franco",
+      "language": "pt-BR",
+      "tags": [
+        "sentimental"
+      ],
+      "lyrics": "Você me pede na carta\nQue eu desapareça\nQue eu nunca mais te procure\nPra sempre te esqueça\nPosso fazer sua vontade\nAtender seu pedido\nMas esquecer, é bobagem\nÉ tempo perdido\nAinda ontem chorei de saudade\nRelendo a carta, e sentindo o perfume\nMas que fazer com essa dor que me invade\nMato esse amor ou me mata o ciume\nO dia inteiro te odeio, te julgo, te caço\nMas em meu sonho de noite, eu te beijo e te abraço\nPorque os sonhos são meus, ninguém rouba e nem tira\nMelhor sonhar a verdade\nQue amar na mentira"
+    },
+    {
+      "id": "seu-amor-ainda-e-tudo-moacyr",
+      "title": "Seu Amor Ainda é Tudo",
+      "artist": "Moacyr Franco",
+      "language": "pt-BR",
+      "tags": [
+        "romântica"
+      ],
+      "lyrics": "Muito prazer em revê-la, você está bonita\nMuito elegante, mais jovem, tão cheia de vida\nEu ainda falo de flores e declamo seu nome\nMesmo meus dedos me traem e discam o seu telefone\nÉ, minha cara eu mudei, minha cara\nMas por dentro eu não mudo\nO sentimento não para, é doença, não sara\nSeu amor ainda é tudo, tudo\nDaquele momento até hoje esperei você\nDaquele maldito momento até hoje, você\nE para o resto da vida vai ser assim\nDentro chorando um Pierrot, fora esse Arlequim\nSei, não devia dizer e disse: Perdoa\nBem que eu queria encontrá-la e sorrir numa boa\nMas convenhamos, a vida nos faz tão pequenos\nNos preparamos pra muito e choramos por menos\nÉ, minha cara eu mudei, minha cara\nMas por dentro eu não mudo\nO sentimento não para, é doença, não sara\nSeu amor ainda é tudo, tudo\nDaquele momento até hoje esperei você\nDaquele maldito momento até hoje só você\nEu sei que o culpado de não ter você sou eu\nE esse medo terrível de amar outra vez é meu\nDaquele momento até hoje esperei você\nDaquele maldito momento até hoje, você\nE eu sei que o culpado de não ter você sou eu\nE esse medo terrível de amar outra vez é meu"
+    },
+    {
+      "id": "eu-nao-sou-cachorro-nao-waldick",
+      "title": "Eu Nao Sou Cachorro Não",
+      "artist": "Waldick Soriano",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Eu não sou cachorro, não\nPra viver tão humilhado\nEu não sou cachorro, não\nPara ser tão desprezado\nTu não sabes compreender\nQuem te ama, quem te adora\nTu só sabes maltratar-me\nE é por isso que eu vou embora\nA pior coisa do mundo\nÉ amar sendo enganado\nQuem despreza um grande amor\nNão merece ser feliz, nem tampouco ser amado\nTu devias compreender\nQue por ti, tenho paixão\nPelo nosso amor, pelo amor de Deus\nEu não sou cachorro, não"
+    },
+    {
+      "id": "quem-eu-quero-nao-me-quer-waldick",
+      "title": "Quem eu quero não me quer",
+      "artist": "Waldick Soriano",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Quem eu quero não me quer\nQuem me quer mandei embora\nÉ por isso que eu não sei\nO que será de mim agora\nPasso as noites meditando\nRevivendo meu castigo\nNo meu quarto de saudade\nSolidão mora comigo\nPor onde anda quem me quer\nQuem não me quer onde andarás\nQue será de suas vidas\nDa minha vida o que será\nNão sou capaz de ser feliz\nNos braços de um amor qualquer\nAh! Se uma fosse a outra\nQue eu amo tanto e não me quer\nPor onde anda quem me quer\nQuem não me quer onde andarás\nQue será de suas vidas\nDa minha vida o que será\nNão sou capaz de ser feliz\nNos braços de um amor qualquer\nAh! Se uma fosse a outra\nQue eu amo tanto e não me quer"
+    },
+    {
+      "id": "paixao-de-um-homem-waldick",
+      "title": "Paixão De Um Homem",
+      "artist": "Waldick Soriano",
+      "language": "pt-BR",
+      "tags": [
+        "romântica"
+      ],
+      "lyrics": "Amigo!\nPor favor, leve essa carta\nE entregue àquela ingrata\nE diga como estou\nCom os olhos rasos d'água\nE o coração cheio de mágoa\nEstou morrendo de amor\nAmigo\nEu queria estar presente\nPara ver o que ela sente\nQuando alguém fala em meu nome\nEu não sei se ela me ama\nEu só sei que ela maltrata\nO coração de um pobre homem\nAmigo\nSe essa cartinha falasse\nPra dizer àquela ingrata\nComo está meu coração\nVou ficar aqui chorando\nPois um homem quando chora\nTem no peito uma paixão\nVou ficar aqui chorando\nPois um homem quando chora\nTem no peito uma paixão"
+    },
+    {
+      "id": "tudo-passara-nelson",
+      "title": "Tudo Passará",
+      "artist": "Nelson Ned",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Eu te dei meu amor por um dia\nE depois, sem querer, te perdi\nNão pensei que o amor existia\nQue também choraria por ti\nMas tudo passa, tudo passará\nE nada fica, nada ficará\nSó se encontra a felicidade\nQuando se entrega o coração\nVoltarei a querer algum dia\nHoje eu sei que não vou mais chorar\nSe em mim já não há alegria\nA esperança me ensina a gritar\nQue tudo passa, tudo passará\nQue nada fica, nada ficará\nSó se encontra a felicidade\nQuando se entrega o coração\nSó se encontra a felicidade\nQuando se entrega o coração"
+    },
+    {
+      "id": "meu-primeiro-amor-ângela",
+      "title": "Meu primeiro amor",
+      "artist": "Ângela Maria",
+      "language": "pt-BR",
+      "tags": [
+        "romântica"
+      ],
+      "lyrics": "Saudade, palavra triste quando se perde um grande amor\nNa estrada longa da vida eu vou chorando a minha dor\nIgual uma borboleta vagando triste por sobre a flor\nSeu nome sempre em meus lábios irei chamando por onde for\nVocê nem sequer se lembra de ouvir a voz deste sofredor\nQue implora por teus carinhos, só um pouquinho do seu amor\nMeu primeiro amor tão cedo acabou\nSó a dor deixou neste peito meu\nMeu primeiro amor foi como uma flor\nQue desabrochou e logo morreu\nNesta solidão sem ter alegria\nO que me alivia são meus tristes ais\nSão prantos de dor que dos olhos caem\nÉ porque bem sei quem eu tanto amei não verei jamais\nSaudade, palavra triste quando se perde um grande amor\nNa estrada longa da vida eu vou chorando a minha dor\nIgual uma borboleta vagando triste por sobre a flor\nSeu nome sempre em meus lábios irei chamando por onde for\nVocê nem sequer se lembra de ouvir a voz deste sofredor\nQue implora por teus carinhos, só um pouquinho do seu amor\nMeu primeiro amor tão cedo acabou\nSó a dor deixou neste peito meu\nMeu primeiro amor foi como uma flor\nQue desabrochou e logo morreu\nNesta solidão sem ter alegria\nO que me alivia são meus tristes ais\nSão prantos de dor que dos olhos caem\nÉ porque bem sei quem eu tanto amei não verei jamais"
+    },
+    {
+      "id": "gente-humilde-ângela",
+      "title": "Gente Humilde",
+      "artist": "Ângela Maria",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Tem certos dias em que eu penso em minha gente\nE sinto assim todo o meu peito se apertar\nPorque parece que acontece de repente\nComo um desejo de eu viver sem me notar\nIgual a como quando eu passo no subúrbio\nEu muito bem, vindo de trem de algum lugar\nE aí me dá uma inveja dessa gente\nQue vai em frente sem nem ter com quem contar\nSão casas simples com cadeiras na calçada\nE na fachada escrito em cima que é um lar\nPela varanda, flores tristes e baldias\nComo a alegria que não tem onde encostar\nE aí me dá uma tristeza no meu peito\nFeito um despeito de eu não ter como lutar\nE eu que não creio, peço a Deus por minha gente\nÉ gente humilde, que vontade de chorar"
+    },
+    {
+      "id": "sandra-rosa-madalena-(a-cigana)-sidney",
+      "title": "Sandra Rosa Madalena (A Cigana)",
+      "artist": "Sidney Magal",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Quero vê-la sorrir, quero vê-la cantar\nQuero ver o seu corpo dançar sem parar\nQuero vê-la sorrir, quero vê-la cantar\nQuero ver o seu corpo dançar sem parar\nEla é bonita, seus cabelos muito negros\nE o seu corpo faz meu corpo delirar\nO seu olhar desperta em mim uma vontade\nDe enlouquecer, de me perder, de me entregar\nQuando ela dança todo mundo se agita\nE o povo grita o seu nome sem parar\nÉ a cigana Sandra Rosa Madalena\nÉ a mulher com quem eu vivo a sonhar\nQuero vê-la sorrir, quero vê-la cantar\nQuero ver o seu corpo dançar sem parar\nQuero vê-la sorrir, quero vê-la cantar\nQuero ver o seu corpo dançar sem parar\nDentro de mim mantenho acesa uma chama\nQue se inflama se ela está perto de mim\nQueria ser todas as coisas que ela gosta\nQueria ser o seu princípio e ser seu fim\nQuando ela dança todo mundo se agita\nE o povo grita o seu nome sem parar\nÉ a cigana Sandra Rosa Madalena\nÉ a mulher com quem eu vivo a sonhar\nQuero vê-la sorrir, quero vê-la cantar\nQuero ver o seu corpo dançar sem parar\nQuero vê-la sorrir, quero vê-la cantar\nQuero ver o seu corpo dançar sem parar\nQuero vê-la sorrir, quero vê-la cantar\nQuero ver o seu corpo dançar sem parar\nQuero vê-la sorrir, quero vê-la cantar\nQuero ver o seu corpo dançar sem parar\nQuero vê-la sorrir, quero vê-la cantar\nQuero ver o seu corpo dançar sem parar\nQuero vê-la sorrir, quero vê-la cantar\nQuero ver o seu corpo dançar sem parar"
+    },
+    {
+      "id": "o-meu-sangue-ferve-por-voce-sidney",
+      "title": "O Meu Sangue Ferve Por Você",
+      "artist": "Sidney Magal",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Teu, todo teu\nMinha, toda minha\nJuntos, essa noite\nQuero te dar todo meu amor\nToda minha vida (sim)\nEu te procurei (nana-nana-na)\nHoje sou feliz\nCom você que é tudo o que sonhei\nOoh, eu te amo\nOoh, eu te amo, meu amor\nOoh, eu te amo\nE o meu sangue ferve por você\nOoh, eu te amo\nOoh, eu te amo, meu amor\nOoh, eu te amo\nE o meu sangue ferve por você\nVocê me enlouquece\nVocê é o que quero\nEu sou prisioneiro\nPrisioneiro desse seu amor\nToda, minha vida (sim, sim, sim, sim)\nEu te procurei\nHoje sou feliz\nCom você que é tudo o que sonhei\nOoh, eu te amo\nOoh, eu te amo, meu amor\nOoh, eu te amo\nE o meu sangue ferve por você\nOoh, eu te amo\nOoh, eu te amo, meu amor\nOoh, eu te amo\nE o meu sangue ferve por você\nOoh, eu te amo\nOoh, eu te amo, meu amor\nOoh, eu te amo\nE o meu sangue ferve por você\n—\nHaja amor\nSidney Magal\nEu queria ser uma abelha pra  pousar na\nsua flor\nHaja amor,Haja amor\nFazer zunzum na cama e gemer sem\nsentir dor\nHaja amor,Haja amor\nna colmeia dos teus sonhos,quero ser\nteu cantador\nHaja amor,haja amor\nPois batuqueiro\né batuqueiro e cantador\né cantador\nHaja amor,Haja amor\nHaja amor pra plantar\nHaja amor pra sorrir\nHaja amor pra viver\nHaja amor pra,seja a flor,anjo no céu\nHaja amor pra crescer\nHaja amor pra subir\nHaja amor pra vencer\nHaja amor,seja flor,anjo do céu\nHaja amor,Haja amor\nPoder te dar uma picada e sentir o teu\nsabor\nHaja amor,Haja amor\nNas estradas do seu corpo te tesouro\ne teu sabor\nHaja amor,Haja amor\nNa colmeia dos teus sonhos quero ser\nteu cantador\nHaja amor,Haja amor"
+    },
+    {
+      "id": "tenho-sidney",
+      "title": "Tenho",
+      "artist": "Sidney Magal",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Tenho! Um mundo de sensações\nUm mundo de vibrações\nQue posso te oferecer\nTenho! Ternura para brindar-te\nCarícias para entregar-te\nMeu corpo prá te aquecer...\nSerão os dias mais felizes\nSe vives junto a mim\nEspero que decidas\nÉ só dizer que sim...\nTenho! Mil braços para abraçar-te\nMil bocas para beijar-te\nMil noites para viver\nTenho! Um mundo que é côr-de-rosa\nDe coisas maravilhosas\nQue tanto sonhavas ter...\nSerão os dias mais felizes\nSe vives junto a mim\nEspero que decidas\nÉ só dizer que sim....\n(AHAHAHAHAHAHAHAHHAA)\nSerão os dias mais felizes\nSe vives junto a mim\nEspero que decidas\nÉ só dizer que sim...\nTenho! Mil braços para abraçar-te\nMil bocas para beijar-te\nMil noites para viver...\nSim! Sim! Sim! Sim!\nTenho! Um mundo que é côr-de-rosa\nDe coisas maravilhosas\nQue tanto sonhavas ter\nSim! Sim! Sim! Sim!\nTenho! Mil braços para abraçar-te\nMil bocas para beijar-te\nMil noites para viver\nTenho! Um mundo que é côr-de-rosa\nDe coisas maravilhosas\nQue tanto sonhavas ter..."
+    },
+    {
+      "id": "nada-alem-nelson",
+      "title": "Nada Além",
+      "artist": "Nelson Gonçalves",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Nada além\nNada além de uma ilusão\nVeja bem\nÉ demais para o meu coração\nAcreditando em tudo que o amor\nMentindo sempre diz\nEu vou vivendo assim feliz\nNa ilusão de ser feliz\nSe o amor\nSó nos causa sofrimento e dor\nÉ melhor, bem melhor\nA ilusão do amor\nEu não quero e nem peço\nPara o meu coração\nNada além\nDe uma linda ilusão..."
+    },
+    {
+      "id": "jardineira-orlando",
+      "title": "Jardineira",
+      "artist": "Orlando Silva",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "O jardineira por que estas tão triste\nMas o que foi que te aconteceu\nFoi a Camélia que caiu do galho\nDeu dois suspiros e depois morreu\nFoi a Camélia que caiu do galho\nDeu dois suspiros e depois morreu\nO jardineira por que estas tão triste\nMas o que foi que te aconteceu\nFoi a camélia que caiu do galho\nDeu dois suspiros e depois morreu\nFoi a Camélia que caiu do galho\nDeu dois suspiros e depois morreu\nVem jardineira\nVem meu amor\nNão fique triste\nQue este mundo é todo teu\nTu és muito mais bonita\nQue a camélia que morreu\nO jardineira por que estas tão triste\nMas o que foi que te aconteceu\nFoi a camélia que caiu do galho\nDeu dois suspiros e depois morreu\nFoi a Camélia que caiu do galho\nDeu dois suspiros e depois morreu\nVem jardineira\nVem meu amor\nNão fique triste\nQue este mundo é todo teu\nTu és muito mais bonita\nQue a camélia que morreu"
+    },
+    {
+      "id": "malandrinha-edson",
+      "title": "Malandrinha",
+      "artist": "Edson Gomes",
+      "language": "pt-BR",
+      "tags": [
+        "clássico"
+      ],
+      "lyrics": "Há muito tempo que eu queria ter\nUm grande amor como você\nQue demorou, mas chegou\nE minha vida se transformou\nTodo tormento já passou\nEm minha vida tudo é amor\nNão esperava que um dia\nViesse ser feliz assim\nE nem sonhava que um dia\nVocê viesse me querer assim\nPois não havia chance alguma\nDe um dia você ser minha\nMalandrinha, estou na tua\nEstais na minha, malandrinha\nMalandra minha, estou na tua\nEstais na minha, malandrinha\nMalandra minha\nÔ, malandrinha, malandrinha\nMalandrinha\nDemorou, mas chegou\nE minha vida se transformou\nTodo tormento já passou\nEm minha vida tudo é amor\nNão esperava que um dia\nViesse ser feliz assim\nE nem sonhava que um dia\nVocê viesse me querer assim\nPois não havia chance alguma\nDe um dia você ser minha\nOh reggae now\nReggae now\n—-\nMalandrinha\nDorgival Dantas\nEi ei ei\nEi malandrinha\nTu tá ficando esperta\nTá ficando malandrinha (4x)\nMaladrinha malandrinha (safadinha)\nSafadinha safadinha (danadinha)\nDanadinha danadinha (malandrinha)\nTu tá ficando esperta\nPá pirá pirô (oww)\nPá pirá pirô (oww)\nPá pirá pirô (oww)\nTu tá ficando esperta (2x)\nMeu amor você tá muito boa\nMuito boa, muito muito boa\nTalvez mais gostosa (muito boa)\nBonita e maravilhosa (muito boa)"
+    }
+  ]
+}
+    
+  </script>
+
+  <script>
+    /* =============================================================
+       COMO ADICIONAR MÚSICAS AGORA (sem servidor)
+       -------------------------------------------------------------
+       1) Abra este arquivo .html num editor de texto.
+       2) Ache o bloco <script id="songs-data" type="application/json"> acima.
+       3) Dentro do array "songs", adicione um novo objeto seguindo o formato:
+          {
+            "title": "NOME DA MÚSICA",
+            "artist": "NOME DO INTÉRPRETE",
+            "language": "pt-BR",
+            "tags": ["opcional1", "opcional2"],
+            "lyrics": "\nLinha 1\nLinha 2\nLinha 3"
+          }
+       4) Salve o arquivo e reabra no navegador. Pronto!
+
+       ✱ Dica: mais tarde, quando for colocar no servidor, você pode migrar 
+         esse JSON para um arquivo separado (songs.json) e usar fetch().
+         Aqui optamos por JSON embutido para evitar bloqueios do file://.
+       ============================================================= */
+
+    const $ = (sel, el=document) => el.querySelector(sel);
+    const $$ = (sel, el=document) => [...el.querySelectorAll(sel)];
+
+    const state = {
+      songs: [],
+      fontScale: parseFloat(localStorage.getItem('karaoke.fontScale')) || 1.15,
+      contrast: localStorage.getItem('karaoke.contrast') || 'normal',
+      view: 'home', // 'home' | 'song'
+      currentId: null
+    };
+
+    // Acessibilidade: aplica preferências salvas
+    function applyPrefs() {
+      document.documentElement.style.setProperty('--font-scale', state.fontScale);
+      document.body.setAttribute('data-contrast', state.contrast);
+    }
+
+    function slug(str) {
+      return str.toLowerCase()
+        .normalize('NFD').replace(/\p{Diacritic}/gu, '')
+        .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+        .slice(0, 80);
+    }
+
+    function loadSongs() {
+      const embedded = JSON.parse($('#songs-data').textContent);
+      let songs = embedded.songs.map(s => ({
+        id: s.id || slug(`${s.title}-${s.artist}`),
+        ...s
+      }));
+      // Mescla com personalizações locais (se existirem)
+      try {
+        const extra = JSON.parse(localStorage.getItem('karaoke.songs') || '[]');
+        const byId = new Map(songs.map(s => [s.id, s]));
+        for (const x of extra) byId.set(x.id, x);
+        songs = [...byId.values()];
+      } catch {}
+      // Ordena por artista, depois título
+      songs.sort((a,b)=> a.artist.localeCompare(b.artist, 'pt-BR') || a.title.localeCompare(b.title, 'pt-BR'));
+      state.songs = songs;
+    }
+
+    // Roteamento simples por hash
+    function navigate(hash) {
+      const m = /^#\/(cancao|song)\/([a-z0-9-]+)$/.exec(hash);
+      if (m) {
+        const id = m[2];
+        const exists = state.songs.find(s => s.id === id);
+        if (exists) {
+          state.view = 'song'; state.currentId = id; render();
+          return;
+        }
+      }
+      state.view = 'home'; state.currentId = null; render();
+    }
+
+    // Views --------------------------------------------------------
+    function renderHome() {
+      const total = state.songs.length;
+      const byArtist = groupBy(state.songs, s => s.artist);
+      const artistCount = Object.keys(byArtist).length;
+
+      const el = document.createElement('section');
+      el.className = 'grid';
+
+      el.innerHTML = `
+        <section class="card">
+          <h1>Vamos celebrar a vida! 🎶🎂</h1>
+          <p class="muted">Quem canta os males espanta... busque a música que está tocando e força no gogó.</p>
+          <div class="toolbar" role="group" aria-label="Ações rápidas">
+            <button class="btn" id="btn-ir-indice">Ver índice de músicas</button>
+            <button class="btn secondary" id="btn-ir-cantores">Ver índice por cantores</button>
+          </div>
+          <p><strong>${total}</strong> músicas • <strong>${artistCount}</strong> cantores/intérpretes</p>
+        </section>
+
+        <section class="card">
+          <h2>Busca rápida</h2>
+          <label for="q">Digite parte do título ou do cantor</label>
+          <input id="q" type="search" placeholder="Ex.: Amor, Maria, Roberto…" autocomplete="off" />
+          <div id="resbusca" class="grid" style="margin-top:.75rem"></div>
+        </section>
+
+       
+
+        <section class="card" id="sec-como" hidden>
+          <h2>Como adicionar músicas</h2>
+          <ol>
+            <li>Abra este arquivo <em>HTML</em> no seu editor de texto (ex.: Bloco de Notas).</li>
+            <li>Localize o bloco <code>&lt;script id="songs-data" type="application/json"&gt;</code>.</li>
+            <li>Insira um novo item dentro de <code>"songs"</code> seguindo o modelo indicado.</li>
+            <li>Salve e reabra o arquivo no navegador.</li>
+          </ol>
+          <details>
+            <summary><strong>Adicionar via este navegador (salva só neste aparelho)</strong></summary>
+            <p>Use o formulário abaixo para inserir uma música rapidamente. Ela ficará salva no <em>armazenamento local</em> deste navegador (não altera o arquivo). Você pode exportar tudo depois.</p>
+            <div class="grid two" style="margin-top:.5rem">
+              <div>
+                <label>Título</label>
+                <input id="f-title" type="text" />
+              </div>
+              <div>
+                <label>Artista/Intérprete</label>
+                <input id="f-artist" type="text" />
+              </div>
+              <div style="grid-column:1/-1">
+                <label>Letra (use quebras de linha)</label>
+                <textarea id="f-lyrics" rows="6" placeholder="Escreva a letra aqui…"></textarea>
+              </div>
+              <div>
+                <button class="btn" id="f-add">Adicionar ao acervo local</button>
+              </div>
+            </div>
+          </details>
+        </section>
+
+        <section class="card">
+          <h2 id="idx-musicas">Índice por música</h2>
+          ${renderSongsTable(state.songs)}
+        </section>
+
+        <section class="card">
+          <h2 id="idx-cantores">Índice por cantor/intérprete</h2>
+          ${renderArtists(byArtist)}
+        </section>
+      `;
+
+      // ligações
+      el.querySelector('#btn-ir-indice').addEventListener('click', ()=> {
+        $('#idx-musicas').scrollIntoView({behavior:'smooth', block:'start'});
+      });
+      el.querySelector('#btn-ir-cantores').addEventListener('click', ()=> {
+        $('#idx-cantores').scrollIntoView({behavior:'smooth', block:'start'});
+      });
+      /*el.querySelector('#btn-como-adicionar').addEventListener('click', ()=> {
+        $('#sec-como').hidden = !$('#sec-como').hidden;
+      });*/
+
+      // busca
+      const q = el.querySelector('#q');
+      const res = el.querySelector('#resbusca');
+      q.addEventListener('input', () => {
+        const term = q.value.trim().toLowerCase();
+        if (!term) { res.innerHTML=''; return; }
+        const found = state.songs.filter(s =>
+          s.title.toLowerCase().includes(term) || s.artist.toLowerCase().includes(term)
+        ).slice(0, 10);
+        res.innerHTML = found.map(s => songCard(s)).join('');
+        // Delegação de clique
+        res.querySelectorAll('[data-goto]').forEach(a => a.addEventListener('click', (e)=>{
+          e.preventDefault(); location.hash = `#/cancao/${a.dataset.goto}`;
+        }));
+      });
+
+      // formulário de adição local
+      el.querySelector('#f-add')?.addEventListener('click', (e)=>{
+        e.preventDefault();
+        const title = $('#f-title', el).value.trim();
+        const artist = $('#f-artist', el).value.trim();
+        const lyrics = $('#f-lyrics', el).value.trim();
+        if (!title || !artist || !lyrics) { alert('Preencha título, artista e letra.'); return; }
+        const obj = { id: slug(`${title}-${artist}`), title, artist, lyrics, language: 'pt-BR', tags: [] };
+        const curr = JSON.parse(localStorage.getItem('karaoke.songs') || '[]');
+        // evita duplicata por id
+        const idx = curr.findIndex(x => x.id === obj.id);
+        if (idx >= 0) curr[idx] = obj; else curr.push(obj);
+        localStorage.setItem('karaoke.songs', JSON.stringify(curr));
+        loadSongs(); render();
+        alert('Música salva localmente! (Menu ⚙️ → “baixar um backup” para exportar)');
+      });
+
+      // ligações da tabela para navegação
+      el.querySelectorAll('[data-song-id]').forEach(a => a.addEventListener('click', (e)=>{
+        e.preventDefault(); location.hash = `#/cancao/${a.getAttribute('data-song-id')}`;
+      }));
+
+      return el;
+    }
+
+    function songCard(s) {
+      return `<a class="card" href="#/cancao/${s.id}" data-goto="${s.id}" style="display:block;text-decoration:none">
+        <div style="display:flex;justify-content:space-between;gap:.5rem;align-items:baseline">
+          <div style="font-weight:800">${escapeHTML(s.title)}</div>
+          <div class="muted">${escapeHTML(s.artist)}</div>
+        </div>
+      </a>`;
+    }
+
+    function renderSongsTable(list) {
+      const rows = list.map(s => `
+        <tr>
+          <td style="width:42%"><a href="#/cancao/${s.id}" data-song-id="${s.id}"><strong>${escapeHTML(s.title)}</strong></a></td>
+          <td style="width:42%">${escapeHTML(s.artist)}</td>
+          <td class="muted">${(s.tags||[]).slice(0,3).join(', ')}</td>
+        </tr>`).join('');
+      return `
+        <div class="card" role="region" aria-label="Índice de músicas">
+          <table>
+            <thead>
+              <tr><th>Título</th><th>Cantor/Intérprete</th><th>Tags</th></tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+    }
+
+    function renderArtists(group) {
+      const out = Object.keys(group).sort((a,b)=> a.localeCompare(b, 'pt-BR')).map(artist => {
+        const items = group[artist].map(s => `<li><a href="#/cancao/${s.id}" data-song-id="${s.id}">${escapeHTML(s.title)}</a></li>`).join('');
+        return `<details>
+            <summary style="font-weight:800">${escapeHTML(artist)} <span class="muted">(${group[artist].length})</span></summary>
+            <ul>${items}</ul>
+          </details>`;
+      }).join('');
+      return `<div class="grid">${out}</div>`;
+    }
+
+    function renderSong(id) {
+      const song = state.songs.find(s => s.id === id);
+      const idx = state.songs.findIndex(s => s.id === id);
+      const prev = state.songs[idx-1] || null;
+      const next = state.songs[idx+1] || null;
+
+      const el = document.createElement('article');
+      el.className = 'grid';
+      el.innerHTML = `
+        <nav aria-label="Trilha" class="muted">
+          <a href="#" id="lnk-voltar">← Voltar ao índice</a>
+        </nav>
+        <section class="card">
+          <h1 style="margin-top:0">${escapeHTML(song.title)}</h1>
+          <p class="muted" style="margin-top:-.25rem">${escapeHTML(song.artist)}</p>
+          <div class="toolbar" style="margin:.5rem 0 1rem 0">
+            ${prev ? `<a class="btn ghost" href="#/cancao/${prev.id}">⟵ Anterior</a>` : ''}
+            ${next ? `<a class="btn ghost" href="#/cancao/${next.id}">Próxima ⟶</a>` : ''}
+            
+          </div>
+          <div class="lyrics" id="letra" aria-label="Letra da música" tabindex="0">${highlightFirstLines(song.lyrics)}</div>
+        </section>
+      `;
+
+      el.querySelector('#lnk-voltar').addEventListener('click', (e)=>{ e.preventDefault(); location.hash = '#'; });
+
+    
+
+      return el;
+    }
+
+    function highlightFirstLines(text) {
+      // Destaca o primeiro verso para foco visual
+      const trimmed = (text || '').replace(/^\n+/, '');
+      const idx = trimmed.indexOf('\n\n'); // primeiro parágrafo
+      if (idx === -1) return `<p class="highlight">${escapeHTML(trimmed)}</p>`;
+      const first = trimmed.slice(0, idx);
+      const rest = trimmed.slice(idx+2);
+      return `<p class="highlight">${escapeHTML(first)}</p>\n\n${escapeHTML(rest)}`
+        .replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+    }
+
+    function groupBy(arr, fn) {
+      return arr.reduce((acc, item)=>{ const k = fn(item); (acc[k] ||= []).push(item); return acc; }, {});
+    }
+
+    function escapeHTML(str='') {
+      return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+    }
+
+    // Render raiz
+    function render() {
+      applyPrefs();
+      const root = $('#conteudo');
+      root.innerHTML = '';
+      if (state.view === 'song' && state.currentId) root.appendChild(renderSong(state.currentId));
+      else root.appendChild(renderHome());
+      // acessibilidade: foca o main para leitores de tela
+      root.focus();
+    }
+
+    // Eventos globais ---------------------------------------------
+    $('#btn-home').addEventListener('click', ()=> { location.hash = '#'; });
+   /* $('#btn-aleatoria').addEventListener('click', ()=> {
+      const s = state.songs[Math.floor(Math.random()*state.songs.length)];
+      location.hash = `#/cancao/${s.id}`;
+    });*/
+    //$('#btn-config').addEventListener('click', ()=> { $('#dialog-config').showModal(); });
+
+    $('#btn-menor').addEventListener('click', ()=> { changeFont(-.08); });
+    $('#btn-maior').addEventListener('click', ()=> { changeFont(+.08); });
+    $('#btn-contraste').addEventListener('click', toggleContrast);
+    //$('#btn-tela-cheia').addEventListener('click', toggleFullscreen);
+
+    $('#btn-exportar').addEventListener('click', exportJSON);
+
+    function changeFont(delta) {
+      state.fontScale = Math.max(.8, Math.min(2.0, state.fontScale + delta));
+      localStorage.setItem('karaoke.fontScale', String(state.fontScale));
+      applyPrefs();
+    }
+
+    function toggleContrast() {
+      state.contrast = (state.contrast === 'high' ? 'normal' : 'high');
+      localStorage.setItem('karaoke.contrast', state.contrast);
+      applyPrefs();
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    }
+
+    function exportJSON() {
+      const data = { songs: state.songs };
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'karaoke-acervo.json'; a.click();
+      setTimeout(()=> URL.revokeObjectURL(url), 1000);
+    }
+
+    // Atalhos de teclado acessíveis
+    window.addEventListener('keydown', (e)=>{
+      if (e.key === '+') { changeFont(+.08); }
+      if (e.key === '-') { changeFont(-.08); }
+      if (e.key.toLowerCase() === 'h') { toggleContrast(); }
+      if (e.key.toLowerCase() === 'f') { toggleFullscreen(); }
+      if (e.key === 'Escape') { location.hash = '#'; }
+    });
+
+    // Inicialização
+    window.addEventListener('hashchange', ()=> navigate(location.hash));
+    loadSongs(); navigate(location.hash || '#');
+  </script>
+</body>
+</html>
