@@ -244,9 +244,7 @@ function renderSong(id) {
   `;
 
   el.innerHTML = `
-    <nav aria-label="Trilha" class="muted">
-      <a href="#idx-musicas" id="lnk-voltar">← Voltar ao índice</a>
-    </nav>
+    
     <section class="card">
       ${navButtons}
       <h1 style="margin-top:0">${escapeHTML(song.title)}</h1>
