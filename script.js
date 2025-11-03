@@ -237,32 +237,21 @@ function renderSong(id) {
   
   // 5. Botões Anterior e Próximo antes do título da música
   const navButtons = `
-    <div class="toolbar" style="margin:.5rem 0 1rem 0">
+    <div class="toolbar" style="margin:.3rem 0 1rem 0">
       ${prev ? `<a class="btn ghost" href="#/cancao/${prev.id}">⟵ Anterior</a>` : ''}
       ${next ? `<a class="btn ghost" href="#/cancao/${next.id}">Próxima ⟶</a>` : ''}
     </div>
   `;
 
-/**/
 
   el.innerHTML = `
-    <nav aria-label="Trilha" class="muted">
-      <a href="#idx-musicas" id="lnk-voltar">← Voltar ao índice</a>
-    </nav>
     <section class="card">
       ${navButtons}
       <h1 style="margin-top:0">${escapeHTML(song.title)}</h1>
-      <p class="muted" style="margin-top:-.25rem">${escapeHTML(song.artist)}</p>
-      <div class="lyrics" id="letra" aria-label="Letra da música" tabindex="0">${highlightFirstLines(song.lyrics)}</div>
+      <p class="muted" style="margin-top:-.8rem">${escapeHTML(song.artist)}</p>
+      <div class="lyrics" id="letra" aria-label="Letra da música" tabindex="0">${song.lyrics}</div>
     </section>
   `;
-
-  el.querySelector('#lnk-voltar').addEventListener('click', (e)=>{ 
-    e.preventDefault(); 
-    location.hash = '#'; 
-    // 6. Correção de rolagem para o topo
-    window.scrollTo(0, 0);
-  });
 
   // 6. Correção de rolagem para o topo ao navegar entre músicas
   $$('.btn.ghost', el).forEach(btn => {
@@ -274,16 +263,6 @@ function renderSong(id) {
   return el;
 }
 
-function highlightFirstLines(text) {
-  // Destaca o primeiro verso para foco visual
-  const trimmed = (text || '').replace(/^\n+/, '');
-  const idx = trimmed.indexOf('\n\n'); // primeiro parágrafo
-  if (idx === -1) return `<p class="highlight">${escapeHTML(trimmed)}</p>`;
-  const first = trimmed.slice(0, idx);
-  const rest = trimmed.slice(idx+2);
-  return `<p class="highlight">${escapeHTML(first)}</p>\n\n${escapeHTML(rest)}`
-    .replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
-}
 
 // Render raiz
 function render() {

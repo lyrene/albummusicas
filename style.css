@@ -22,7 +22,7 @@
   --font-scale: 1.15;     /* ajuste global de fonte */
   --line: 1.6;            /* line-height base */
   --btn-height: 45px;     /* Altura padrão para todos os botões */
-  --btn-font-size: 1.0rem; /* Tamanho de fonte padrão para botões */
+  --btn-font-size: 18px; /* Tamanho de fonte padrão para botões */
 }
 
 [data-contrast="high"] {
@@ -64,7 +64,8 @@ header {
   background: color-mix(in oklab, var(--surface) 92%, var(--brand-2) 8%);
   box-shadow: var(--shadow);
   /* 2. Header e Footer fixos: Usar font-size fixo para o header */
-  font-size: 1rem; 
+  /*font-size: 1rem; */
+  font-size: 18px;
   padding: .75rem clamp(.75rem, 4vw, 1.25rem);
 }
 
@@ -88,7 +89,7 @@ main {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 1rem;
-  margin-bottom: 1rem; /* Adicionado margem para separar cartões */
+  margin-bottom: 0.5rem; /* Adicionado margem para separar cartões */
 }
 
 .grid { display: grid; gap: 1rem; }
@@ -172,13 +173,13 @@ label { font-weight: 700; display: block; margin-bottom: .25rem; }
   white-space: pre-wrap;  /* respeita \n */
 }
 
-.section-title { font-weight: 800; margin-top: 1rem; font-size: 1.1em; }
+.section-title { font-weight: 800; margin-top: 0.5rem; font-size: 1.1em; }
 
-.toolbar { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+.toolbar { display:flex; gap:.2rem; flex-wrap:wrap; align-items:center; }
 
 /* 4. Tabela de índice com melhor aproveitamento de espaço */
 table { width:100%; border-collapse: collapse; }
-th, td { padding: .5rem; border-bottom: 1px solid color-mix(in oklab, var(--fg) 15%, #0000 85%); text-align: left; } /* Padding reduzido */
+th, td { padding: .3rem; border-bottom: 1px solid color-mix(in oklab, var(--fg) 15%, #0000 85%); text-align: left; } /* Padding reduzido */
 th { position: sticky; top: 3.2rem; background: var(--surface); z-index: 1; }
 
 /* 4. Ajuste para os cartões de música no índice */
@@ -208,7 +209,7 @@ a:focus-visible { outline: 3px solid var(--brand-4); outline-offset: 2px; border
   .bar {
     /* Título acima dos menus */
     grid-template-columns: 1fr; 
-    gap: .5rem;
+    gap: .2rem;
   }
 
   .title {
@@ -218,7 +219,7 @@ a:focus-visible { outline: 3px solid var(--brand-4); outline-offset: 2px; border
 
   nav {
     display: flex;
-    /*flex-wrap: wrap;*/
+    flex-wrap: wrap;
     justify-content: center;
     gap: .2rem;
   }
